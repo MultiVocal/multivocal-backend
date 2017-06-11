@@ -10,7 +10,7 @@ var aws_sdk = require('aws-sdk');
 var aws_config = require('./configs/aws_credentials.json');
 var db = require('./db.js');
 
-var index = require('./routes/index');
+var api = require('./routes/api');
 
 var app = express();
 
@@ -26,29 +26,21 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Setup mongo connection pool
-var mongoUrl = `mongodb://localhost:${mongoConfig.port}/${mongoConfig.db}`;
-
 app.use(function(req, res, next) {
-    db.connect(mongoUrl, function(err){
-        if (err) {
-            console.log("Failed to connect to db!");
-            return;
-        }
-
-        req.mongo_client = db.get();
-        next();
+     setupMongo((err, mongo) => {
+         req.mongo_client = mongo;
+         return next();
     });
 });
 
-// Setup aws client
 app.use(function(req, res, next) {
-    aws_sdk.config.loadFromPath('./configs/aws_credentials.json') || {};
-    req.S3 = new aws_sdk.S3();
-    next();
+    setupS3((err, s3_client) => {
+        req.S3 = s3_client;
+        return next();
+    });
 });
 
-app.use('/', index);
+app.use('/api', api);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -59,6 +51,7 @@ app.use(function(req, res, next) {
 
 // error handler
 app.use(function(err, req, res, next) {
+  console.log(err);
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
@@ -68,5 +61,27 @@ app.use(function(err, req, res, next) {
   res.send(err);
   res.render('error');
 });
+
+const setupMongo = (callback) => {
+    // Setup mongo connection pool
+    var mongoUrl = `mongodb://localhost:${mongoConfig.port}/${mongoConfig.db}`;
+
+    db.connect(mongoUrl, function(err){
+        if (err) {
+            console.log("Failed to connect to db!");
+            return callback(err);
+        }
+
+        return callback(undefined, db.get());
+    });
+}
+
+const setupS3 = (callback) => {
+    // Setup aws client
+    aws_sdk.config.loadFromPath('./configs/aws_credentials.json') || {};
+
+    var s3_client = new aws_sdk.S3();
+    return callback(undefined, s3_client)
+}
 
 module.exports = app;
