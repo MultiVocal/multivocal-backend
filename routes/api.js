@@ -10,7 +10,7 @@ const ObjectId = require('mongodb').ObjectId;
 const aws_config = require('../configs/aws_credentials.json');
 
 /* Post transcription to the database */
-router.post('/transcription', upload.single('file'), (req, res, next) => {
+router.post('/recording', upload.single('file'), (req, res, next) => {
     let file               = req.file || req.body.file;
     let transcription_id   = req.body.transcription_id;
     let transcription_text = req.body.transcription_text;
@@ -56,12 +56,12 @@ router.post('/transcription', upload.single('file'), (req, res, next) => {
             transcription_text,
             notes,
             client_id,
-            upload_time: new Date(),
+            upload_time: new Date().getTime(),
             verified: false,
             rating: null
         }
 
-        req.mongo_client.collection('transcriptions').insert(mongo_obj, (err, result) => {
+        req.mongo_client.collection('recordings').insert(mongo_obj, (err, result) => {
 
             if (err) {
                 // TODO: Some sweet error handling
@@ -80,7 +80,7 @@ router.post('/transcription', upload.single('file'), (req, res, next) => {
 });
 
 /* Get transcription from db */
-router.get('/transcription/:transcription_id', (req, res, next) => {
+router.get('/recordings/:transcription_id', (req, res, next) => {
     let transcription_id = req.params.transcription_id;
     //TODO: validate id
     const query = {
@@ -90,7 +90,7 @@ router.get('/transcription/:transcription_id', (req, res, next) => {
         }
     }
 
-    req.mongo_client.collection('transcriptions').find(query).toArray((error, transcriptions) => {
+    req.mongo_client.collection('recordings').find(query).toArray((error, transcriptions) => {
         if (error) {
             // TODO error handling
             console.log(error)
@@ -146,7 +146,7 @@ router.delete('/recording/:file_name', (req, res, next) => {
                 }
             }
         }
-        req.mongo_client.collection('transcriptions').updateOne(query.filter, query.update, (err, result) => {
+        req.mongo_client.collection('recordings').updateOne(query.filter, query.update, (err, result) => {
             if (err) {
                 console.log(err);
                 return next(err);
@@ -191,7 +191,7 @@ router.put('/recording/:file_name/rate/:rating', (req, res, next) => {
         }
     }
 
-    req.mongo_client.collection('transcription').updateOne(query.filter, query.update, (err, result) => {
+    req.mongo_client.collection('recordings').updateOne(query.filter, query.update, (err, result) => {
         if (err) {
             console.log(err);
             return next(err);
@@ -205,5 +205,7 @@ router.put('/recording/:file_name/rate/:rating', (req, res, next) => {
         return res.send(response);
     });
 });
+
+/*  */
 
 module.exports = router;
