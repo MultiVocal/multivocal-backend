@@ -14,10 +14,10 @@ router.post('/transcription', upload.single('file'), (req, res, next) => {
     let file               = req.file || req.body.file;
     let transcription_id   = req.body.transcription_id;
     let transcription_text = req.body.transcription_text;
-    let location_id        = req.body.location_id;
+    let client_id          = req.body.client_id;
     let notes              = req.body.notes || [];
 
-    if (!file || !transcription_id || !transcription_text || !location_id) {
+    if (!file || !transcription_id || !transcription_text || !client_id) {
         res.status(422);
         let error_obj = {
             reason: "Request was missing data",
@@ -25,7 +25,7 @@ router.post('/transcription', upload.single('file'), (req, res, next) => {
                 file: !!file,
                 transcription_id: !!transcription_id,
                 transcription_text: !!transcription_text,
-                location_id: !!location_id
+                client_id: !!client_id
             }
         }
 
@@ -55,6 +55,7 @@ router.post('/transcription', upload.single('file'), (req, res, next) => {
             transcription_id,
             transcription_text,
             notes,
+            client_id,
             upload_time: new Date(),
             verified: false,
             rating: null
