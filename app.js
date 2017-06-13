@@ -10,7 +10,7 @@ var aws_sdk = require('aws-sdk');
 var aws_config = require('./configs/aws_credentials.json');
 var db = require('./db.js');
 
-var api = require('./routes/api');
+var recording = require('./routes/api/recording');
 
 var app = express();
 
@@ -40,7 +40,7 @@ app.use(function(req, res, next) {
     });
 });
 
-app.use('/api', api);
+app.use('/api', recording);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

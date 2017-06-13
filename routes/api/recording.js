@@ -7,24 +7,25 @@ const upload = multer();
 const aws_sdk = require('aws-sdk');
 const uuid = require('uuid/v1');
 const ObjectId = require('mongodb').ObjectId;
-const aws_config = require('../configs/aws_credentials.json');
+const aws_config = require('../../configs/aws_credentials.json');
 
 /* Post transcription to the database */
 router.post('/recording', upload.single('file'), (req, res, next) => {
+    console.log(JSON.stringify(req.body, null, 4));
     let file               = req.file || req.body.file;
     let transcription_id   = req.body.transcription_id;
-    let transcription_text = req.body.transcription_text;
     let client_id          = req.body.client_id;
     let notes              = req.body.notes || [];
 
-    if (!file || !transcription_id || !transcription_text || !client_id) {
+    console.log(file);
+
+    if (!file || !transcription_id) {
         res.status(422);
         let error_obj = {
             reason: "Request was missing data",
             data: {
                 file: !!file,
                 transcription_id: !!transcription_id,
-                transcription_text: !!transcription_text,
                 client_id: !!client_id
             }
         }
@@ -53,7 +54,6 @@ router.post('/recording', upload.single('file'), (req, res, next) => {
         let mongo_obj = {
             file_name,
             transcription_id,
-            transcription_text,
             notes,
             client_id,
             upload_time: new Date().getTime(),
