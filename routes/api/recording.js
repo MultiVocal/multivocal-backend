@@ -5,7 +5,6 @@ const router = express.Router();
 const multer  = require('multer');
 const upload = multer();
 const aws_sdk = require('aws-sdk');
-const uuid = require('uuid/v1');
 const ObjectId = require('mongodb').ObjectId;
 const aws_config = require('../../configs/aws_credentials.json');
 
@@ -22,8 +21,7 @@ router.post('/recording', upload.single('file'), (req, res, next) => {
             reason: "Request was missing data",
             data: {
                 file: !!file,
-                transcription_id: !!transcription_id,
-                client_id: !!client_id
+                transcription_id: !!transcription_id
             }
         }
 
@@ -33,11 +31,11 @@ router.post('/recording', upload.single('file'), (req, res, next) => {
     // 1: Create object to insert in mongodb
     // 2: Use mongodb dep to inserrt
     // 3: Return  op result
-    let file_name = uuid().toString().replace(/-/g, "");
+    let file_name = new ObjectId();
 
     let s3_opts = {
         Bucket: aws_config.Bucket,
-        Key: file_name,
+        Key: file_name.toString(),
         Body: file.buffer
     }
 
@@ -110,7 +108,7 @@ router.get('/recordings/:transcription_id', (req, res, next) => {
 router.delete('/recording/:file_name', (req, res, next) => {
     let file_name = req.params.file_name;
 
-    if (!file_name) {
+    if (!file_name|| !ObjectId.isValid(file_name)) {
         res.status(422)
         let error_obj = {
             reason: "Request was missing data",
@@ -135,7 +133,7 @@ router.delete('/recording/:file_name', (req, res, next) => {
 
         const query = {
             filter: {
-                file_name
+                file_name: new ObjectId(file_name)
             },
             update: {
                 $set: {
@@ -164,13 +162,13 @@ router.put('/recording/:file_name/rate/:rating', (req, res, next) => {
     let rating = req.params.rating;
     let file_name = req.params.file_name;
 
-    if (!rating) {
+    if (!rating || !ObjectId.isValid(file_name)) {
         res.status(422)
         let error_obj = {
-            reason: "Request was missing data",
+            reason: "Request was missing data, or the data was invalid",
             data: {
-                file_name: !!file_name,
-                rating: !!rating
+                file_name: file_name,
+                rating: rating
             }
         }
 
@@ -179,7 +177,7 @@ router.put('/recording/:file_name/rate/:rating', (req, res, next) => {
 
     const query = {
         filter: {
-            file_name
+            file_name: new ObjectId(file_name)
         },
         update: {
             $set: {
