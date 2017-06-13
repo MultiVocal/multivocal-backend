@@ -11,13 +11,10 @@ const aws_config = require('../../configs/aws_credentials.json');
 
 /* Post transcription to the database */
 router.post('/recording', upload.single('file'), (req, res, next) => {
-    console.log(JSON.stringify(req.body, null, 4));
     let file               = req.file || req.body.file;
     let transcription_id   = req.body.transcription_id;
     let client_id          = req.body.client_id;
     let notes              = req.body.notes || [];
-
-    console.log(file);
 
     if (!file || !transcription_id) {
         res.status(422);
