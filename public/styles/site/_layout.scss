@@ -1,0 +1,102 @@
+
+body {
+    background-color: #f1f1f1;
+    color: $primary-font-color;
+
+    font-family: 'Roboto Mono', 'Lucida Console', monospace;
+
+
+    padding: 30px;
+}
+
+p {
+    line-height: 1.4;
+}
+
+a {
+    color: $primary-font-color;
+    font-weight: bold;
+
+    &:visited {
+        color: $primary-font-color;
+    }
+
+    &:hover {
+        color: $primary-color;
+    }
+}
+
+h1, h2, h3, h4 {
+    margin: 1.5rem 0 0.5rem;
+    font-weight: bold;
+}
+
+h1 {
+    font-size: 22px;
+    text-transform: lowercase;
+}
+
+h2 {
+    font-size: 18px;
+    text-transform: lowercase;
+}
+
+h3 {
+    font-size: 16px;
+}
+
+.primary-color {
+    color: $primary-color;
+}
+
+.secondary-color {
+    color: $secondary-color;
+}
+
+.border-container {
+    .border {
+        border: 7px solid $primary-color;
+        position: fixed;
+        z-index: 999;
+    }
+
+    .top-border {
+        top: 0;
+        width: 100vw;
+        left: 0; right: 0;
+    }
+
+    .bottom-border {
+        bottom: 0;
+        width: 100vw;
+        left: 0; right: 0;
+    }
+
+    .left-border {
+        left: 0;
+        top: 0; bottom: 0;
+        height: 100vh;
+    }
+
+    .right-border {
+        right: 0;
+        top: 0; bottom: 0;
+        height: 100vh;
+    }
+}
+
+.page-content {
+    width: 100%;
+
+    padding-top: 60px;
+    padding-bottom: 30px;
+
+    @media screen and (min-width: 625px) {
+        padding-top: 30px;
+    }
+}
+
+main {
+    margin-top: 1rem;
+}
+

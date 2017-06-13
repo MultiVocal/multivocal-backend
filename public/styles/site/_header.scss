@@ -1,0 +1,72 @@
+
+header {
+    display: block;
+    position: fixed;
+    top: 30px;
+    left: 30px;
+    width: calc(100vw - 60px);
+
+    letter-spacing: 2px;
+
+    &:after {
+        content: "";
+        visibility: hidden;
+        display: block;
+        height: 0;
+        clear: both;
+    }
+
+    a {
+        font-weight: normal;
+    }
+}
+
+
+.header-branding {
+
+    text-align: center;
+
+    a:hover {
+        color: $primary-font-color;
+    }
+
+    @media screen and (min-width: 625px) {
+        float: left;
+        display: inline-block;
+        text-align: left;
+    }
+}
+
+nav.header-navigation {
+
+    text-align: center;
+    margin-top: 0.5rem;
+
+    @media screen and (min-width: 625px) {
+        float: right;
+        text-align: left;
+        margin-top: 0;
+    }
+
+    .header-navigation-item {
+        display: inline-block;
+        text-transform: lowercase;
+        position: relative;
+
+        a {
+            padding: 0 10px;
+
+            &:hover {
+                color: $primary-font-color;
+            }
+        }
+
+        &.active:after {
+            @include strikethrough($primary-color);
+        }
+
+        &:hover:after {
+            @include strikethrough($secondary-color);
+        }
+    }
+}

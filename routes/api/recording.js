@@ -15,6 +15,9 @@ router.post('/recording', upload.single('file'), (req, res, next) => {
     let client_id          = req.body.client_id;
     let notes              = req.body.notes || [];
 
+    console.log("hey!")
+    console.log(req.body);
+    console.log(file);
     if (!file || !transcription_id) {
         res.status(422);
         let error_obj = {
@@ -69,6 +72,7 @@ router.post('/recording', upload.single('file'), (req, res, next) => {
                 message: "succesfully added file"
             }
 
+            res.status(200);
             return res.send(response);
         });
     });
