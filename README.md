@@ -40,7 +40,7 @@ of the project.
 
 These Are the API endpoints that are a part of the backend so far.
 
-#### POST /recording
+#### POST /api/recording
 Used for uploading new files and supplying data about the recording.
 It takes the following form data:
 
@@ -54,15 +54,20 @@ but will be at a later time.
 
 It will return a status code of 422 if missing data, and 200 on succesful upload.
 
-#### GET /recordings/:transcription_id
+#### PUT /api/recording/:file_name/edit
+Replaces the current file with an edited version.
+
+It takes a file, just like in the endpoint for uploading, as form data
+
+#### DELETE /api/recording/:file_name
+Deletes the recording with the specified name from the system
+
+#### GET /api/recordings/:transcription_id
 Gets all recordings for the specified transcription_id.
 
 The transcription_id in the url is the id to get recordings for.
 
-#### DELETE /recording/:file_name
-Deletes the recording with the specified name from the system
-
-#### PUT /recording/:file_name/rate/:rating
+#### PUT /api/recording/:file_name/rate/:rating
 Adds a rating for the specified file_name
 
 As of now, there are no spec for the ratings, that will have to decided.
