@@ -141,7 +141,7 @@ router.put('/recording/:file_name/edit', upload.single('file'), (req, res, next)
 
         let mongo_query = {
             filter: {
-                file_name
+                file_name: new ObjectId(file_name)
             },
             update: {
                 $set: {
@@ -152,7 +152,6 @@ router.put('/recording/:file_name/edit', upload.single('file'), (req, res, next)
 
         // Update document in mongo to have a "last_edited" field
         req.mongo_client.collection('recordings').update(mongo_query.filter, mongo_query.update, (err, result) => {
-
             if (err) {
                 // TODO: Some sweet error handling
                 console.log(err)
