@@ -104,6 +104,70 @@ router.get('/recordings/:transcription_id', (req, res, next) => {
     });
 });
 
+/* Edit recording */
+router.put('/recording/:file_name/edit', upload.single('file'), (req, res, next) => {
+    let file      = req.file || req.body.file;
+    let file_name = req.params.file_name;
+
+    // Validate params
+    if (!file_name || !ObjectId.isValid(file_name) || !file) {
+        res.status(422)
+
+        let error_obj = {
+            reason: "Request was missing data",
+            data: {
+                file_name: file_name,
+                file: file
+            }
+        }
+
+        return res.send(error_obj);
+    }
+
+    let s3_opts = {
+        Bucket: aws_config.Bucket,
+        Key: file_name,
+        Body: file.buffer
+    }
+
+    // An upload to an existing key will simply overwrite it
+    // TODO: Before uploading, make sure that it already exists?
+    req.S3.upload(s3_opts, (err, data) => {
+        if (err) {
+            // TODO error handling
+            console.log(err)
+            return next(err);
+        }
+
+        let mongo_query = {
+            filter: {
+                file_name: new ObjectId(file_name)
+            },
+            update: {
+                $set: {
+                    last_edited: new Date().getTime()
+                }
+            }
+        }
+
+        // Update document in mongo to have a "last_edited" field
+        req.mongo_client.collection('recordings').update(mongo_query.filter, mongo_query.update, (err, result) => {
+            if (err) {
+                // TODO: Some sweet error handling
+                console.log(err)
+                return next(err);
+            }
+
+            let response = {
+                status: 0,
+                message: "succesfully replaced file"
+            }
+
+            return res.send(response);
+        });
+    });
+});
+
 /* Delete recording from db */
 router.delete('/recording/:file_name', (req, res, next) => {
     let file_name = req.params.file_name;
