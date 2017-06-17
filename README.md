@@ -67,6 +67,9 @@ Gets all recordings for the specified transcription_id.
 
 The transcription_id in the url is the id to get recordings for.
 
+#### PUT /api/recordings/:file_name/verify
+Marks the recording as verified
+
 #### PUT /api/recording/:file_name/rate/:rating
 Adds a rating for the specified file_name
 
