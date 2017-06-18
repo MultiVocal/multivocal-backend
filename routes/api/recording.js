@@ -51,7 +51,7 @@ router.post('/recording', upload.single('file'), (req, res, next) => {
             transcription_id,
             notes,
             client_id,
-            upload_time: new Date().getTime(),
+            upload_time: new Date(),
             verified: false,
             rating: null
         }
@@ -145,7 +145,7 @@ router.put('/recording/:file_name/edit', upload.single('file'), (req, res, next)
             },
             update: {
                 $set: {
-                    last_edited: new Date().getTime()
+                    last_edited: new Date()
                 }
             }
         }
