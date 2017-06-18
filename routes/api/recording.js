@@ -51,7 +51,7 @@ router.post('/recording', upload.single('file'), (req, res, next) => {
             transcription_id,
             notes,
             client_id,
-            upload_time: new Date().getTime(),
+            upload_time: new Date(),
             verified: false,
             rating: null
         }
@@ -104,6 +104,43 @@ router.get('/recordings/:transcription_id', (req, res, next) => {
     });
 });
 
+/* GET file names for all recordings */
+router.get('/recordings', (req, res, next) => {
+    req.mongo_client.collection('transcriptions').find({}).toArray((err, _transcriptions) => {
+        if (err) {
+            // TODO error handling
+            console.log(err)
+            return next(err);
+        }
+
+        let transcriptions = _transcriptions;
+
+        req.mongo_client.collection('recordings').find({}).toArray((err, _recordings) => {
+            if (err) {
+                // TODO error handling
+                console.log(err)
+                return next(err);
+            }
+
+            let recordings = _recordings;
+
+            transcriptions = transcriptions.map((t) => ({
+                transcription_id: t.transcription_id,
+                recordings: recordings.filter((r) => t.transcription_id === r.transcription_id)
+            }));
+
+            let response = {
+                status: 0,
+                data: {
+                    transcriptions
+                }
+            }
+
+            return res.send(response);
+        });
+    });
+});
+
 /* Edit recording */
 router.put('/recording/:file_name/edit', upload.single('file'), (req, res, next) => {
     let file      = req.file || req.body.file;
@@ -145,7 +182,7 @@ router.put('/recording/:file_name/edit', upload.single('file'), (req, res, next)
             },
             update: {
                 $set: {
-                    last_edited: new Date().getTime()
+                    last_edited: new Date()
                 }
             }
         }
