@@ -1,11 +1,12 @@
 'use strict';
 
-const express = require('express');
-const router = express.Router();
-const multer  = require('multer');
-const upload = multer();
-const aws_sdk = require('aws-sdk');
-const ObjectId = require('mongodb').ObjectId;
+const express    = require('express');
+const router     = express.Router();
+const multer     = require('multer');
+const upload     = multer();
+const aws_sdk    = require('aws-sdk');
+const ObjectId   = require('mongodb').ObjectId;
+const helpers    = require('./helpers.js');
 const aws_config = require('../../configs/aws_credentials.json');
 
 /* Post transcription to the database */
@@ -31,7 +32,7 @@ router.post('/recording', upload.single('file'), (req, res, next) => {
     // 1: Create object to insert in mongodb
     // 2: Use mongodb dep to inserrt
     // 3: Return  op result
-    let file_name = new ObjectId();
+    let file_name = `${new ObjectId().toString()}.wav`;
 
     let s3_opts = {
         Bucket: aws_config.Bucket,
@@ -69,7 +70,10 @@ router.post('/recording', upload.single('file'), (req, res, next) => {
                 message: "succesfully added file"
             }
 
-            return res.send(response);
+
+            helpers.reportUploadToSlack(file_name, req.S3, (err, report) => {
+                return res.send(response);
+            });
         });
     });
 });
@@ -77,7 +81,6 @@ router.post('/recording', upload.single('file'), (req, res, next) => {
 /* Get transcription from db */
 router.get('/recordings/:transcription_id', (req, res, next) => {
     let transcription_id = req.params.transcription_id;
-    //TODO: validate id
     const query = {
         transcription_id,
         deleted: {
@@ -147,7 +150,7 @@ router.put('/recording/:file_name/edit', upload.single('file'), (req, res, next)
     let file_name = req.params.file_name;
 
     // Validate params
-    if (!file_name || !ObjectId.isValid(file_name) || !file) {
+    if (!file_name || !file) {
         res.status(422)
 
         let error_obj = {
@@ -178,7 +181,7 @@ router.put('/recording/:file_name/edit', upload.single('file'), (req, res, next)
 
         let mongo_query = {
             filter: {
-                file_name: new ObjectId(file_name)
+                file_name: file_name
             },
             update: {
                 $set: {
@@ -209,7 +212,7 @@ router.put('/recording/:file_name/edit', upload.single('file'), (req, res, next)
 router.delete('/recording/:file_name', (req, res, next) => {
     let file_name = req.params.file_name;
 
-    if (!file_name|| !ObjectId.isValid(file_name)) {
+    if (!file_name) {
         res.status(422)
         let error_obj = {
             reason: "Request was missing data",
@@ -234,7 +237,7 @@ router.delete('/recording/:file_name', (req, res, next) => {
 
         const query = {
             filter: {
-                file_name: new ObjectId(file_name)
+                file_name: file_name
             },
             update: {
                 $set: {
@@ -263,7 +266,7 @@ router.put('/recording/:file_name/rate/:rating', (req, res, next) => {
     let rating = req.params.rating;
     let file_name = req.params.file_name;
 
-    if (!rating || !ObjectId.isValid(file_name)) {
+    if (!rating || !file_name) {
         res.status(422)
         let error_obj = {
             reason: "Request was missing data, or the data was invalid",
@@ -278,7 +281,7 @@ router.put('/recording/:file_name/rate/:rating', (req, res, next) => {
 
     const query = {
         filter: {
-            file_name: new ObjectId(file_name)
+            file_name: file_name
         },
         update: {
             $set: {
@@ -306,7 +309,7 @@ router.put('/recording/:file_name/rate/:rating', (req, res, next) => {
 router.put('/recording/:file_name/verify', (req, res, next) => {
     let file_name = req.params.file_name;
 
-    if (!file_name || !ObjectId.isValid(file_name)) {
+    if (!file_name) {
         res.status(422)
         let error_obj = {
             reason: "Request was missing data, or the data was invalid",
@@ -321,7 +324,7 @@ router.put('/recording/:file_name/verify', (req, res, next) => {
 
     const query = {
         filter: {
-            file_name: new ObjectId(file_name)
+            file_name: file_name
         },
         update: {
             $set: {
