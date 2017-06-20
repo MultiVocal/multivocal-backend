@@ -18,19 +18,21 @@ const reportUploadToSlack = (file_name, s3, callback) => {
     const current_time = new Date();
 
     const json_data = {
-        "fields": [
-            {
-                "title": "New Upload",
-                "value": ``,
-                "short": false // Optional flag indicating whether the `value` is short enough to be displayed side-by-side with other values
-            },
-            {
-                "title": "Metadata",
-                "value": `upload time: ${current_time}`,
+        "attachments": [{
+            "fallback": "A new recording was uploaded.",
+            "color": "#36a64f",
+            "author_name": "MultiVocal Backend",
+            "author_icon": "https://scontent-arn2-1.cdninstagram.com/t51.2885-19/s150x150/19227138_110056859607819_125825112795512832_n.jpg",
+            "title": "New Upload",
+            "title_link": `${s3_url}`,
+            "text": `Uploaded at \n${current_time}`,
+            "fields": [{
+                "title": "Priority",
+                "value": "High",
                 "short": false
-            }
-        ],
-        "pretext": `${s3_url}`,
+            }],
+            "ts": `${current_time.getTime() / 1000}`
+        }],
         "fallback": "A new recording was uploaded."
     }
 
