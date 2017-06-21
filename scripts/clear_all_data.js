@@ -64,7 +64,7 @@ rl.question('You are about to clear ALL data from s3 buckets and mongo database.
                     return process.exit(1);
                 }
 
-                // if (data.Contents.length == 1000) emptyBucket(bucketName, callback); // do something like this - can only delete 1000 files at the time
+                // if (data.Contents.length == 1000) emptyBucket(bucketName, callback); // do something like this - S3 can only delete 1000 files at the time
 
                 db.collection('recordings').deleteMany({}, (err, mongoresult) => {
                     if (err) {

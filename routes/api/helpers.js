@@ -9,7 +9,8 @@ const reportUploadToSlack = (file_name, s3, callback) => {
     // get URL for the file
     var params = {
         Bucket: aws_config.Bucket,
-        Key: file_name.toString()
+        Key: file_name.toString(),
+        Expires: 604800
     };
     var s3_url = s3.getSignedUrl('getObject', params);
 
