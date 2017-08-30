@@ -16,13 +16,14 @@ router.post('/recording', upload.single('file'), (req, res, next) => {
     let client_id          = req.body.client_id;
     let notes              = req.body.notes || [];
 
-    if (!file || !transcription_id) {
+    if (!file || !transcription_id || !client_id) {
         res.status(422);
         let error_obj = {
             reason: "Request was missing data",
             data: {
                 file: !!file,
-                transcription_id: !!transcription_id
+                transcription_id: transcription_id,
+                client_id: client_id
             }
         }
 
@@ -51,7 +52,7 @@ router.post('/recording', upload.single('file'), (req, res, next) => {
             file_name,
             transcription_id,
             notes,
-            client_id,
+            client_id: new ObjectId(client_id),
             upload_time: new Date(),
             verified: false,
             rating: null
