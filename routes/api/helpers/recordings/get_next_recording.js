@@ -1,5 +1,7 @@
 'use strict'
 
+const utils = require('./utils.js');
+
 /**
  * Adds the recordings with fewest ratings to state.recordings
  * @param  state.req
@@ -65,7 +67,7 @@ const getRatingExtremes = (state, next) => {
 
     if (!recordings[0].rating || recordings[0] === 0) {
         // If recordings have not yet been rated, get random.
-        state.next_recording = getRandomRecording(recordings);
+        state.next_recording = utils.getRandomRecording(recordings);
         return next();
     }
 
@@ -83,7 +85,7 @@ const getRatingExtremes = (state, next) => {
     const min_diff = Math.abs(mid_value - min_recording.rating);
 
     if (max_diff === min_diff) {
-        state.next_recording = getRandomRecording(recordings);
+        state.next_recording = utils.getRandomRecording(recordings);
         return next();
     }
 
@@ -92,18 +94,7 @@ const getRatingExtremes = (state, next) => {
     next();
 }
 
-/**
- * Returns a random entry from an array of recordings
- * @param  Array    recordings
- * @return Object
- */
-const getRandomRecording = (recordings) => {
-    const min  = 0;
-    const max  = Math.floor(recordings.length - 1);
-    const rand = Math.floor(Math.random() * (max - min + 1)) + min;
 
-    return recordings[rand];
-}
 
 module.exports = {
     getWithFewestRatings,

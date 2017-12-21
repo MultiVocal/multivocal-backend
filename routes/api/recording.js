@@ -1,84 +1,38 @@
 'use strict';
 
-const express    = require('express');
-const router     = express.Router();
-const multer     = require('multer');
-const upload     = multer();
-const aws_sdk    = require('aws-sdk');
-const Chains     = require('c4s');
-const ObjectId   = require('mongodb').ObjectId;
-const helpers    = require('./helpers.js');
-const Recordings = require('./helpers/recordings.js');
-const aws_config = require('../../configs/aws_credentials.json');
+const express             = require('express');
+const router              = express.Router();
+const multer              = require('multer');
+const upload              = multer();
+const aws_sdk             = require('aws-sdk');
+const Chains              = require('c4s');
+const ObjectId            = require('mongodb').ObjectId;
+const aws_config          = require('../../configs/aws_credentials.json');
+const helpers             = require('./helpers.js');
+
+const upload_recording    = require('./helpers/recordings/upload_recording.js');
+const get_next_recording  = require('./helpers/recordings/get_next_recording.js');
+
 
 /* Post transcription to the database */
 router.post('/recording', upload.single('file'), (req, res, next) => {
-    let file               = req.file || req.body.file;
-    let transcription_id   = req.body.transcription_id;
-    let client_id          = req.body.client_id;
-    let notes              = req.body.notes || [];
-
-    if (!file || !transcription_id || !client_id) {
-        res.status(422);
-        let error_obj = {
-            reason: "Request was missing data",
-            data: {
-                file: !!file,
-                transcription_id: transcription_id,
-                client_id: client_id
-            }
-        }
-
-        return res.send(error_obj);
+    let state = {
+        req,
+        aws_config
     }
 
-    // 1: Create object to insert in mongodb
-    // 2: Use mongodb dep to inserrt
-    // 3: Return  op result
-    let file_name = `${new ObjectId().toString()}.wav`;
-
-    let s3_opts = {
-        Bucket: aws_config.Bucket,
-        Key: file_name.toString(),
-        Body: file.buffer
-    }
-
-    req.S3.upload(s3_opts, (err, data) => {
-        if (err) {
-            // TODO error handling
-            console.log(err)
-            return next(err);
-        }
-
-        let mongo_obj = {
-            file_name,
-            transcription_id,
-            notes,
-            client_id: new ObjectId(client_id),
-            upload_time: new Date(),
-            verified: false,
-            rating: null
-        }
-
-        req.mongo_client.collection('recordings').insert(mongo_obj, (err, result) => {
-
-            if (err) {
-                // TODO: Some sweet error handling
-                console.log(err)
-                return next(err);
-            }
-
-            let response = {
-                status: 0,
-                message: "succesfully added file"
-            }
-
-
-            helpers.reportUploadToSlack(file_name, req.S3, (err, report) => {
-                return res.send(response);
-            });
+    Chains(state)
+        .then(upload_recording.validateRecording)
+        .then(upload_recording.uploadFileToS3)
+        .then(upload_recording.createRecordingObject)
+        .then(upload_recording.insertRecordingInDb)
+        .then(upload_recording.reportUploadToSlack)
+        .then((state, next) => {
+            res.send(state.upload_response);
+        })
+        .catch((error, state) => {
+            next(error);
         });
-    });
 });
 
 router.get('/recordings/next', (req, res, next) => {
@@ -98,8 +52,9 @@ router.get('/recordings/next', (req, res, next) => {
     }
 
     Chains(state)
-        .then(Recordings.getWithFewestRatings)
-        .then(Recordings.getRatingExtremes)
+        // TODO needs a validation function
+        .then(get_next_recording.getWithFewestRatings)
+        .then(get_next_recording.getRatingExtremes)
         .then((state, next) => {
             res.send(state.next_recording)
         })
