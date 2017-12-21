@@ -12,6 +12,7 @@ const helpers             = require('./helpers.js');
 
 const upload_recording    = require('./helpers/recordings/upload_recording.js');
 const get_next_recording  = require('./helpers/recordings/get_next_recording.js');
+const get_recordings      = require('./helpers/recordings/get_recordings_by_transcription.js');
 
 
 /* Post transcription to the database */
@@ -34,6 +35,8 @@ router.post('/recording', upload.single('file'), (req, res, next) => {
             next(error);
         });
 });
+
+
 
 router.get('/recordings/next', (req, res, next) => {
     // TODO figure out a good way of fetching the next recording to fetch
@@ -63,33 +66,21 @@ router.get('/recordings/next', (req, res, next) => {
         });
 });
 
-/* Get transcription from db */
-router.get('/recordings/:transcription_id', (req, res, next) => {
-    let transcription_id = req.params.transcription_id;
-    const query = {
-        transcription_id,
-        deleted: {
-            $ne: true
-        }
+/* Get recordings based on transcription_id from db */
+router.get('/recordings/transcription/:transcription_id', (req, res, next) => {
+    let state = {
+        req
     }
 
-    req.mongo_client.collection('recordings').find(query).toArray((error, transcriptions) => {
-        if (error) {
-            // TODO error handling
-            console.log(error)
-            return next(err);
-        }
-
-        let response = {
-            status: 0,
-            data: {
-                transcription_id,
-                files: transcriptions.map(t => t.file_name)
-            }
-        }
-
-        return res.send(response);
-    });
+    Chains(state)
+        .then(get_recordings.validateId)
+        .then(get_recordings.fetchRecordings)
+        .then((state, next) => {
+            res.send(state.recordings_response)
+        })
+        .catch((error, state) => {
+            next(error);
+        });
 });
 
 /* GET file names for all recordings */
