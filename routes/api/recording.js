@@ -13,6 +13,7 @@ const helpers             = require('./helpers.js');
 const upload_recording                = require('./helpers/recordings/upload_recording.js');
 const get_next_recording              = require('./helpers/recordings/get_next_recording.js');
 const get_recordings_by_transcription = require('./helpers/recordings/get_recordings_by_transcription.js');
+const get_all_recordings              = require('./helpers/recordings/get_all_recordings.js');
 
 
 /* Post transcription to the database */
@@ -85,39 +86,21 @@ router.get('/recordings/transcription/:transcription_id', (req, res, next) => {
 
 /* GET file names for all recordings */
 router.get('/recordings', (req, res, next) => {
-    req.mongo_client.collection('transcriptions').find({}).toArray((err, _transcriptions) => {
-        if (err) {
-            // TODO error handling
-            console.log(err)
-            return next(err);
-        }
+    let state = {
+        req,
+        mongo_client: req.mongo_client
+    }
 
-        let transcriptions = _transcriptions;
-
-        req.mongo_client.collection('recordings').find({}).toArray((err, _recordings) => {
-            if (err) {
-                // TODO error handling
-                console.log(err)
-                return next(err);
-            }
-
-            let recordings = _recordings;
-
-            transcriptions = transcriptions.map((t) => ({
-                transcription_id: t.transcription_id,
-                recordings: recordings.filter((r) => t.transcription_id === r.transcription_id)
-            }));
-
-            let response = {
-                status: 0,
-                data: {
-                    transcriptions
-                }
-            }
-
-            return res.send(response);
+    Chains(state)
+        .then(get_all_recordings.getAllTranscriptions)
+        .then(get_all_recordings.getAllRecordings)
+        .then(get_all_recordings.mapRecordings)
+        .then((state, next) => {
+            res.send(state.recordings_response)
+        })
+        .catch((error, state) => {
+            next(error);
         });
-    });
 });
 
 /* Edit recording */
