@@ -61,10 +61,7 @@ const getRatingExtremes = (state, next) => {
 
     if (!recordings[0].rating || recordings[0] === 0) {
         // If recordings have not yet been rated, get random.
-        const min = 0;
-        const max = Math.floor(recordings.length - 1);
-        const random_index = Math.floor(Math.random() * (max - min + 1)) + min;
-        state.next_recording = recordings[0];
+        state.next_recording = getRandomRecording(recordings);
         return next();
     }
 
@@ -76,10 +73,27 @@ const getRatingExtremes = (state, next) => {
     let max_recording = recordings[recordings.length -1];
     let min_recording = recordings[0];
 
+
     // Get the value furthest from the center value
-    state.next_recording = (Math.abs(mid_value - min_recording.rating) < Math.abs(mid_value - max_recording.rating)) ? max_recording : min_recording;
+    const max_diff = Math.abs(mid_value - max_recording.rating);
+    const min_diff = Math.abs(mid_value - min_recording.rating);
+
+    if (max_diff === min_diff) {
+        state.next_recording = getRandomRecording(recordings);
+        return next();
+    }
+
+    state.next_recording = (min_diff < max_diff) ? max_recording : min_recording;
 
     next();
+}
+
+const getRandomRecording = (recordings) => {
+    const min  = 0;
+    const max  = Math.floor(recordings.length - 1);
+    const rand = Math.floor(Math.random() * (max - min + 1)) + min;
+
+    return recordings[rand];
 }
 
 module.exports = {
