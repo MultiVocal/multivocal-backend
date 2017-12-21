@@ -101,7 +101,7 @@ router.get('/recordings/next', (req, res, next) => {
         .then(Recordings.getWithFewestRatings)
         .then(Recordings.getRatingExtremes)
         .then((state, next) => {
-            res.send(state.response)
+            res.send(state.next_recording)
         })
         .catch((error, state) => {
             next(error);
