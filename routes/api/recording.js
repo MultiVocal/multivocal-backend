@@ -10,9 +10,9 @@ const ObjectId            = require('mongodb').ObjectId;
 const aws_config          = require('../../configs/aws_credentials.json');
 const helpers             = require('./helpers.js');
 
-const upload_recording    = require('./helpers/recordings/upload_recording.js');
-const get_next_recording  = require('./helpers/recordings/get_next_recording.js');
-const get_recordings      = require('./helpers/recordings/get_recordings_by_transcription.js');
+const upload_recording                = require('./helpers/recordings/upload_recording.js');
+const get_next_recording              = require('./helpers/recordings/get_next_recording.js');
+const get_recordings_by_transcription = require('./helpers/recordings/get_recordings_by_transcription.js');
 
 
 /* Post transcription to the database */
@@ -73,8 +73,8 @@ router.get('/recordings/transcription/:transcription_id', (req, res, next) => {
     }
 
     Chains(state)
-        .then(get_recordings.validateId)
-        .then(get_recordings.fetchRecordings)
+        .then(get_recordings_by_transcription.validateId)
+        .then(get_recordings_by_transcription.fetchRecordings)
         .then((state, next) => {
             res.send(state.recordings_response)
         })
