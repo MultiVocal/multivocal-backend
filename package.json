@@ -8,6 +8,7 @@
   "dependencies": {
     "aws-sdk": "^2.62.0",
     "body-parser": "~1.17.1",
+    "c4s": "^1.0.1",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.3",
     "express": "~4.15.2",

@@ -5,8 +5,10 @@ const router     = express.Router();
 const multer     = require('multer');
 const upload     = multer();
 const aws_sdk    = require('aws-sdk');
+const Chains     = require('c4s');
 const ObjectId   = require('mongodb').ObjectId;
 const helpers    = require('./helpers.js');
+const Recordings = require('./helpers/recordings.js');
 const aws_config = require('../../configs/aws_credentials.json');
 
 /* Post transcription to the database */
@@ -77,6 +79,33 @@ router.post('/recording', upload.single('file'), (req, res, next) => {
             });
         });
     });
+});
+
+router.get('/recordings/next', (req, res, next) => {
+    // TODO figure out a good way of fetching the next recording to fetch
+    // It should be based on two things:
+    // 1. How many ratings does it have
+    // 2. How extreme are the ratings (both positive and negative)
+    // Figure out the ratios and stuff
+    // We'll be using the field "rating_amount" for recordings to sort by.
+    // We need to add an index for it in mongo, as well as a script for doing it on new deployments.
+    //
+    // Also, at a later point we might want to be able to choose from
+    // transcription_sets & location
+
+    let state = {
+        req
+    }
+
+    Chains(state)
+        .then(Recordings.getWithFewestRatings)
+        .then(Recordings.getRatingExtremes)
+        .then((state, next) => {
+            res.send(state.response)
+        })
+        .catch((error, state) => {
+            next(error);
+        });
 });
 
 /* Get transcription from db */
