@@ -147,46 +147,21 @@ router.delete('/recording/:file_name', (req, res, next) => {
 
 /* Set a rating for a recording*/
 router.put('/recording/:file_name/rate/:rating', (req, res, next) => {
-    let rating = req.params.rating;
-    let file_name = req.params.file_name;
-
-    if (!rating || !file_name) {
-        res.status(422)
-        let error_obj = {
-            reason: "Request was missing data, or the data was invalid",
-            data: {
-                file_name: file_name,
-                rating: rating
-            }
-        }
-
-        return res.send(error_obj);
+    let state = {
+        req,
+        aws_config,
+        mongo_client: req.mongo_client
     }
 
-    const query = {
-        filter: {
-            file_name: file_name
-        },
-        update: {
-            $set: {
-                rating
-            }
-        }
-    }
-
-    req.mongo_client.collection('recordings').updateOne(query.filter, query.update, (err, result) => {
-        if (err) {
-            console.log(err);
-            return next(err);
-        }
-
-        const response = {
-            status: 0,
-            message: "succesfully rated file"
-        }
-
-        return res.send(response);
-    });
+    Chains(state)
+        .then(rate_recording.verifyRateRecording)
+        .then(rate_recording.addRatingToDb)
+        .then((state, next) => {
+            res.send(state.rate_response)
+        })
+        .catch((error, state) => {
+            next(error);
+        });
 });
 
 /* Verify recording*/

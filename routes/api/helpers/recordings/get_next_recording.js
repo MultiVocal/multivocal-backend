@@ -23,8 +23,8 @@ const getWithFewestRatings = (state, next) => {
             return next(error);
         }
 
-        if (!result) {
-            return new Error("No recordings to be rated");
+        if (!result || !result[0]) {
+            return next(new Error("No recordings to be rated"));
         }
 
         let amount = result[0].rating_amount;
