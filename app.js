@@ -46,10 +46,11 @@ app.use(function(req, res, next) {
     });
 });
 
+// Backend paths
 app.use('/api', recording);
 app.use('/transcriptions', transcriptions);
 
-// FRONTEND PATHS
+// Frontend paths
 var pages = require('./routes/frontend/pages.js');
 app.use('/', pages);
 
