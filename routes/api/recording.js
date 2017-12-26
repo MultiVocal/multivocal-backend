@@ -14,6 +14,7 @@ const upload_recording                = require('./helpers/recordings/upload_rec
 const get_next_recording              = require('./helpers/recordings/get_next_recording.js');
 const get_recordings_by_transcription = require('./helpers/recordings/get_recordings_by_transcription.js');
 const get_all_recordings              = require('./helpers/recordings/get_all_recordings.js');
+const edit_recordings                 = require('./helpers/recordings/edit_recording.js');
 
 
 /* Post transcription to the database */
@@ -105,66 +106,22 @@ router.get('/recordings', (req, res, next) => {
 
 /* Edit recording */
 router.put('/recording/:file_name/edit', upload.single('file'), (req, res, next) => {
-    let file      = req.file || req.body.file;
-    let file_name = req.params.file_name;
-
-    // Validate params
-    if (!file_name || !file) {
-        res.status(422)
-
-        let error_obj = {
-            reason: "Request was missing data",
-            data: {
-                file_name: file_name,
-                file: file
-            }
-        }
-
-        return res.send(error_obj);
+    let state = {
+        req,
+        aws_config,
+        mongo_client: req.mongo_client
     }
 
-    let s3_opts = {
-        Bucket: aws_config.Bucket,
-        Key: file_name,
-        Body: file.buffer
-    }
-
-    // An upload to an existing key will simply overwrite it
-    // TODO: Before uploading, make sure that it already exists?
-    req.S3.upload(s3_opts, (err, data) => {
-        if (err) {
-            // TODO error handling
-            console.log(err)
-            return next(err);
-        }
-
-        let mongo_query = {
-            filter: {
-                file_name: file_name
-            },
-            update: {
-                $set: {
-                    last_edited: new Date()
-                }
-            }
-        }
-
-        // Update document in mongo to have a "last_edited" field
-        req.mongo_client.collection('recordings').update(mongo_query.filter, mongo_query.update, (err, result) => {
-            if (err) {
-                // TODO: Some sweet error handling
-                console.log(err)
-                return next(err);
-            }
-
-            let response = {
-                status: 0,
-                message: "succesfully replaced file"
-            }
-
-            return res.send(response);
+    Chains(state)
+        .then(edit_recordings.verifyEdit)
+        .then(edit_recordings.uploadFileToS3)
+        .then(edit_recordings.updateFileInDB)
+        .then((state, next) => {
+            res.send(state.recordings_response)
+        })
+        .catch((error, state) => {
+            next(error);
         });
-    });
 });
 
 /* Delete recording from db */
