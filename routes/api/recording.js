@@ -15,6 +15,7 @@ const get_next_recording              = require('./helpers/recordings/get_next_r
 const get_recordings_by_transcription = require('./helpers/recordings/get_recordings_by_transcription.js');
 const get_all_recordings              = require('./helpers/recordings/get_all_recordings.js');
 const edit_recordings                 = require('./helpers/recordings/edit_recording.js');
+const delete_recording                = require('./helpers/recordings/delete_recording.js');
 
 
 /* Post transcription to the database */
@@ -126,55 +127,22 @@ router.put('/recording/:file_name/edit', upload.single('file'), (req, res, next)
 
 /* Delete recording from db */
 router.delete('/recording/:file_name', (req, res, next) => {
-    let file_name = req.params.file_name;
-
-    if (!file_name) {
-        res.status(422)
-        let error_obj = {
-            reason: "Request was missing data",
-            data: {
-                file_name: !!file_name
-            }
-        }
-
-        return res.send(error_obj);
+    let state = {
+        req,
+        aws_config,
+        mongo_client: req.mongo_client
     }
 
-    let s3_opts = {
-        Bucket: aws_config.Bucket,
-        Key: file_name
-    }
-
-    req.S3.deleteObject(s3_opts, (err, data) => {
-        if (err) {
-            console.log(err); // TODO same as other places - do proper error handling in the app.js file
-            return next(err);
-        }
-
-        const query = {
-            filter: {
-                file_name: file_name
-            },
-            update: {
-                $set: {
-                    deleted: true
-                }
-            }
-        }
-        req.mongo_client.collection('recordings').updateOne(query.filter, query.update, (err, result) => {
-            if (err) {
-                console.log(err);
-                return next(err);
-            }
-
-            const response = {
-                status: 0,
-                message: "succesfully deleted file"
-            }
-
-            return res.send(response);
+    Chains(state)
+        .then(delete_recording.verifyDeleteRecording)
+        .then(delete_recording.removeFromS3)
+        .then(delete_recording.removeFromDb)
+        .then((state, next) => {
+            res.send(state.delete_response)
+        })
+        .catch((error, state) => {
+            next(error);
         });
-    })
 });
 
 /* Set a rating for a recording*/
