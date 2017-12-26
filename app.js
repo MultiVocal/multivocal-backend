@@ -10,6 +10,7 @@ var aws_sdk = require('aws-sdk');
 var aws_config = require('./configs/aws_credentials.json');
 var db = require('./db.js');
 var ejsLayouts = require("express-ejs-layouts");
+var contentful = require('contentful');
 
 var recording = require('./routes/api/recording');
 var transcriptions = require('./routes/api/transcriptions');
