@@ -9,4 +9,8 @@ router.get('/about', function(req, res, next) {
     res.render('pages/about');
 });
 
+router.get('/contribute-voice', function(req, res, next) {
+    res.render('pages/contribute-voice');
+});
+
 module.exports = router;
