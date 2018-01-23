@@ -29,7 +29,7 @@ function stopRecording() {
 
         recorder && recorder.stop();
 
-        createDownloadLink();
+        uploadRecording();
 
         recorder.clear();
     }
@@ -63,6 +63,30 @@ function initializeRecording() {
         }).catch(function(e) { // Failure
             console.log('No live audio input: ' + e);
         });
+}
+
+function uploadRecording() {
+
+    recorder && recorder.exportWAV(function(blob) {
+        file = blob;
+
+        var data = {
+            file : file,
+            transcription_id : '',
+            client_id : '',
+            notes : []
+        };
+
+        console.log(data);
+
+        return;
+
+        sendToPath('post', '/recording', data, function (error, response) {
+            console.log(error);
+            console.log(response);
+        });
+    });
+
 }
 
 function createDownloadLink() {
