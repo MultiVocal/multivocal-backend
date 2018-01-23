@@ -3,9 +3,34 @@ var recorder;
 var hasGottenPermission = false;
 
 $(document).ready(function() {
+
+    getTranscription();
+
     $('#start-recording').on('click', startRecording);
     $('#stop-recording').on('click', stopRecording);
 });
+
+function getTranscription() {
+
+    let transcription_texts = [
+        'Lorem ipsum dolor sit amet, consectetur adipisicing elit, aliquid quo itaque',
+        'Neque id hic fugit sit perspiciatis tempore laborum ex, dolorem quia voluptatibus esse',
+        'Nobis consectetur animi nostrum aut, minus dolores',
+        'Consequatur laudantium laborum deleniti, omnis enim eius fuga voluptate adipisci distinctio culpa'
+    ];
+
+    let transcription_text = transcription_texts[Math.floor(Math.random()*transcription_texts.length)];
+
+    $('#transcription').text(transcription_text);
+
+    sendToPath('get', '/transcription', {}, function (error, response) {
+        if(error) {
+            console.log(error);
+        } else {
+            console.log(response);
+        }
+    });
+}
 
 function startRecording() {
     if(!hasGottenPermission) {
@@ -24,14 +49,13 @@ function stopRecording() {
     console.log(recorder);
     if(recorder && recorder.recording) {
 
+        recorder && recorder.stop();
+        uploadRecording();
+        recorder.clear();
+
         $('#stop-recording').prop('disabled', true);
         $('#start-recording').prop('disabled', false);
-
-        recorder && recorder.stop();
-
-        uploadRecording();
-
-        recorder.clear();
+        getTranscription();
     }
 }
 
@@ -78,8 +102,6 @@ function uploadRecording() {
         };
 
         console.log(data);
-
-        return;
 
         sendToPath('post', '/recording', data, function (error, response) {
             console.log(error);
