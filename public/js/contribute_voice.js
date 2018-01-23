@@ -12,18 +12,27 @@ function startRecording() {
         initializeRecording();
         return;
     }
+
+    console.log('Recording');
+    $('#start-recording').prop('disabled', true);
+    $('#stop-recording').prop('disabled', false);
     recorder && recorder.record();
+    //microphone.start();
 }
 
 function stopRecording() {
-    recorder && recorder.stop();
+    console.log(recorder);
+    if(recorder && recorder.recording) {
 
-    recorder && recorder.exportWAV(function(blob) {
-        var url = URL.createObjectURL(blob);
-        console.log(url);
-    });
+        $('#stop-recording').prop('disabled', true);
+        $('#start-recording').prop('disabled', false);
 
-    recorder.clear();
+        recorder && recorder.stop();
+
+        createDownloadLink();
+
+        recorder.clear();
+    }
 }
 
 function initializeRecording() {
@@ -54,4 +63,22 @@ function initializeRecording() {
         }).catch(function(e) { // Failure
             console.log('No live audio input: ' + e);
         });
+}
+
+function createDownloadLink() {
+    recorder && recorder.exportWAV(function(blob) {
+        var url = URL.createObjectURL(blob);
+        var li = document.createElement('li');
+        var au = document.createElement('audio');
+        var hf = document.createElement('a');
+
+        au.controls = true;
+        au.src = url;
+        hf.href = url;
+        hf.download = new Date().toISOString() + '.wav';
+        hf.innerHTML = hf.download;
+        li.appendChild(au);
+        li.appendChild(hf);
+        $('#recordings').append(li);
+    });
 }
