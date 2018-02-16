@@ -29,6 +29,7 @@ const verifyRateRecording = (state, next) => {
 const addRatingToDb = (state, next) => {
     const file_name    = state.file_name;
     const mongo_client = state.mongo_client;
+    const rating       = state.rating;
 
     const query = {
         filter: {

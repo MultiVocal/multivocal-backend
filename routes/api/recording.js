@@ -16,6 +16,8 @@ const get_recordings_by_transcription = require('./helpers/recordings/get_record
 const get_all_recordings              = require('./helpers/recordings/get_all_recordings.js');
 const edit_recordings                 = require('./helpers/recordings/edit_recording.js');
 const delete_recording                = require('./helpers/recordings/delete_recording.js');
+const rate_recording                  = require('./helpers/recordings/rate_recording.js');
+const verify_recording                = require('./helpers/recordings/verify_recording.js');
 
 
 /* Post transcription to the database */
@@ -166,46 +168,19 @@ router.put('/recording/:file_name/rate/:rating', (req, res, next) => {
 
 /* Verify recording*/
 router.put('/recording/:file_name/verify', (req, res, next) => {
-    let file_name = req.params.file_name;
-
-    if (!file_name) {
-        res.status(422)
-        let error_obj = {
-            reason: "Request was missing data, or the data was invalid",
-            data: {
-                file_name: file_name,
-                rating: rating
-            }
-        }
-
-        return res.send(error_obj);
+    let state = {
+        req
     }
 
-    const query = {
-        filter: {
-            file_name: file_name
-        },
-        update: {
-            $set: {
-                verified: true
-            }
-        }
-    }
-
-
-    req.mongo_client.collection('recordings').updateOne(query.filter, query.update, (err, result) => {
-        if (err) {
-            console.log(err);
-            return next(err);
-        }
-
-        const response = {
-            status: 0,
-            message: "succesfully verified recording"
-        }
-
-        return res.send(response);
-    });
+    Chains(state)
+        .then(verify_recording.verifyVerificationRequest)
+        .then(verify_recording.postVerification)
+        .then((state, next) => {
+            res.send(state.verify_response);
+        })
+        .catch((error, state) => {
+            next(error);
+        });
 });
 
 
