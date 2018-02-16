@@ -1,9 +1,12 @@
 $font-size-base: 14px;
-
+$monospace-stack: 'Roboto Mono', 'Lucida Console', monospace;
 $primary-font-color: #191919;
 
+$purple: #7022fd;
+$turquiose: #00ffc8;
+
 $primary-color: #fff;
-$secondary-color: blue;
+$secondary-color: $purple;
 $tertiary-color: yellow;
 
 $layout-width: 950px;
