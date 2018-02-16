@@ -33,6 +33,47 @@
     </head>
 
     <body>
-        <%- body %>
+
+        <div class="border-container">
+            <div class="top-border border"></div>
+            <div class="bottom-border border"></div>
+            <div class="left-border border"></div>
+            <div class="right-border border"></div>
+        </div>
+
+        <div class="page-content">
+
+            <header>
+                <div class="header-content">
+                    <div class="header-branding">
+                        <a href="/"><img src="/images/multivocal_logo.svg" alt="Multivocal logo" class="header-branding-image"></a>
+                    </div>
+
+                    <nav class="header-navigation">
+                        <ul>
+                            <li class="header-navigation-item">
+                                <a href="/">Home</a>
+                            </li>
+                            <li class="header-navigation-item">
+                                <a href="/about">About</a>
+                            </li>
+                            <li class="header-navigation-item">
+                                <a href="/contribute-voice">Contribute voice</a>
+                            </li>
+                            <li class="header-navigation-item">
+                                <a href="/rate-voices">Rate existing</a>
+                            </li>
+                            <li class="header-navigation-item">
+                                <a href="/contact">Contact</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </header>
+
+            <main>
+                <%- body %>
+            </main>
+        </div>
     </body>
 </html>

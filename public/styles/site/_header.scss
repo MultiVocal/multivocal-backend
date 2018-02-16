@@ -1,0 +1,98 @@
+
+header {
+    display: block;
+    position: fixed;
+    left: 0;
+    width: 100vw;
+    height: 115px;
+    z-index: 9999;
+
+    background: linear-gradient(to bottom, rgba(255,255,255,1) 0%,rgba(255,255,255,1) 45%,rgba(255,255,255,0) 100%);
+
+    @media screen and (min-width: $breakpoint) {
+        height: 90px;
+        background: linear-gradient(to bottom, rgba(255,255,255,1) 0%,rgba(255,255,255,1) 30%,rgba(255,255,255,0) 100%);
+    }
+
+    .header-content {
+        letter-spacing: 2px;
+        padding: 18px 30px 30px;
+        max-width: $layout-width;
+        margin: 0 auto;
+    }
+
+    &:after {
+        content: "";
+        visibility: hidden;
+        display: block;
+        height: 0;
+        clear: both;
+    }
+
+    a {
+        font-weight: normal;
+    }
+}
+
+
+.header-branding {
+
+    text-align: center;
+
+    a {
+        display: block;
+    }
+
+    .header-branding-image {
+        width: 120px;
+    }
+
+    @media screen and (min-width: $breakpoint) {
+        float: left;
+        display: inline-block;
+        text-align: left;
+    }
+}
+
+nav.header-navigation {
+
+    text-align: center;
+    margin-top: 0.5rem;
+
+    @media screen and (min-width: $breakpoint) {
+        float: right;
+        text-align: left;
+        margin-top: 0;
+    }
+
+    ul {
+        margin: 0;
+    }
+
+    .header-navigation-item {
+        display: inline-block;
+        text-transform: lowercase;
+        position: relative;
+        margin: 8px 10px 0;
+
+        &:last-of-type {
+            margin-right: 0;
+        }
+
+        a {
+            padding: 0 0;
+
+            &:hover {
+                color: $primary-font-color;
+            }
+        }
+
+        &.active a:after {
+            @include strikethrough($primary-color);
+        }
+
+        &:hover a:after {
+            @include strikethrough($secondary-color);
+        }
+    }
+}

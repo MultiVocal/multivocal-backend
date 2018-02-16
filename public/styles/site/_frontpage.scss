@@ -1,0 +1,56 @@
+
+h1.frontpage-headline {
+    color: $secondary-color;
+    font-size: 30px;
+    font-style: italic;
+    text-transform: uppercase;
+
+    text-align: center;
+
+    @media screen and (min-width: 570px) {
+        font-size: 42px;
+    }
+
+    @media screen and (min-width: 760px) {
+        font-size: 62px;
+    }
+
+}
+
+.frontpage-contribute-container {
+    text-align: center;
+    margin: 30px 0 10px;
+}
+
+h2.frontpage-byline {
+    text-align: center;
+    text-transform: uppercase;
+    font-size: 20px;
+    letter-spacing: 2px;
+    font-weight: 400;
+    margin-bottom: 30px;
+}
+
+.frontpage-button {
+    background-color: #191919;
+    color: $primary-color !important;
+    padding: 7px 10px;
+    width: calc(100% - 20px);
+    display: inline-block;
+    margin: 10px 0;
+
+    &:hover {
+        background-color: $secondary-color;
+    }
+
+    @media screen and (min-width: 570px) {
+        width: 180px;
+        margin: 0px 20px;
+    }
+
+    @media screen and (min-width: 760px) {
+        font-size: 25px;
+        margin: 0px 20px;
+        width: 250px;
+    }
+}

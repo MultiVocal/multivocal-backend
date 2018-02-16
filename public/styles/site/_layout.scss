@@ -1,0 +1,104 @@
+
+body {
+    background-color: #f1f1f1;
+    color: $primary-font-color;
+
+    font-family: 'Roboto Mono', 'Lucida Console', monospace;
+}
+
+::selection, ::-moz-selection {
+    background-color: #fff;
+}
+
+h1, h2, h3 {
+    font-family: 'Alright Sans LP';
+}
+
+h1 {
+    color: $secondary-color;
+    font-size: 25px;
+    font-style: italic;
+    text-transform: uppercase;
+    text-align: center;
+
+    @media screen and (min-width: $breakpoint) {
+        font-size: 40px;
+    }
+}
+
+p {
+    line-height: 1.4;
+    margin-bottom: 12px;
+    font-size: 16px;
+    //text-align: justify;
+}
+
+a {
+    color: $primary-font-color;
+    font-weight: bold;
+    text-decoration: none;
+
+    &:visited {
+        color: $primary-font-color;
+    }
+
+    &:hover {
+        color: $primary-color;
+    }
+}
+
+
+.primary-color {
+    color: $primary-color;
+}
+
+.secondary-color {
+    color: $secondary-color;
+}
+
+.border-container {
+    .border {
+        border: 7px solid $primary-color;
+        position: fixed;
+        z-index: 999;
+    }
+
+    .top-border {
+        top: 0;
+        width: 100vw;
+        left: 0; right: 0;
+    }
+
+    .bottom-border {
+        bottom: 0;
+        width: 100vw;
+        left: 0; right: 0;
+    }
+
+    .left-border {
+        left: 0;
+        top: 0; bottom: 0;
+        height: 100vh;
+    }
+
+    .right-border {
+        right: 0;
+        top: 0; bottom: 0;
+        height: 100vh;
+    }
+}
+
+.page-content {
+    width: 100%;
+}
+
+main {
+    padding: 115px 30px 30px;
+    max-width: $layout-width;
+    margin: 0 auto;
+
+    @media screen and (min-width: $breakpoint) {
+        //padding-top: 90px;
+    }
+}
+

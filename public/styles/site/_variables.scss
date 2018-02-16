@@ -1,0 +1,21 @@
+$font-size-base: 14px;
+
+$primary-font-color: #191919;
+
+$primary-color: #fff;
+$secondary-color: blue;
+$tertiary-color: yellow;
+
+$layout-width: 950px;
+
+$breakpoint: 890px;
+
+@mixin strikethrough($strike-color) {
+    content: "";
+    width: calc(100% + 20px);
+    position: absolute;
+    top: 50%;
+    left: -10px;
+    border: 1px solid $strike-color;
+    cursor: pointer;
+}
