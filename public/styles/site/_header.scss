@@ -38,6 +38,7 @@ header {
 .header-branding {
 
     text-align: center;
+    display: block;
 
     a {
         display: block;
@@ -46,24 +47,12 @@ header {
     .header-branding-image {
         width: 120px;
     }
-
-    @media screen and (min-width: $breakpoint) {
-        float: left;
-        display: inline-block;
-        text-align: left;
-    }
 }
 
 nav.header-navigation {
 
     text-align: center;
     margin-top: 0.5rem;
-
-    @media screen and (min-width: $breakpoint) {
-        float: right;
-        text-align: left;
-        margin-top: 0;
-    }
 
     ul {
         margin: 0;
