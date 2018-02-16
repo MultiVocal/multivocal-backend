@@ -2,12 +2,28 @@ var audio_context;
 var recorder;
 var hasGottenPermission = false;
 
+var wavesurfer = WaveSurfer.create({
+    container: '#waveform',
+    waveColor: 'violet',
+    progressColor: 'purple'
+});
+
+/*
+var microphone = Object.create(WaveSurfer.Microphone);
+
+microphone.init({
+    wavesurfer: wavesurfer
+});
+*/
+
 $(document).ready(function() {
 
     getTranscription();
 
     $('#start-recording').on('click', startRecording);
     $('#stop-recording').on('click', stopRecording);
+
+    console.log(recorder);
 });
 
 function getTranscription() {
@@ -23,13 +39,15 @@ function getTranscription() {
 
     $('#transcription').text(transcription_text);
 
-    sendToPath('get', '/transcription', {}, function (error, response) {
+    /*
+    sendToPath('get', '/api/transcription', {}, function (error, response) {
         if(error) {
             console.log(error);
         } else {
             console.log(response);
         }
     });
+    */
 }
 
 function startRecording() {
@@ -50,6 +68,7 @@ function stopRecording() {
     if(recorder && recorder.recording) {
 
         recorder && recorder.stop();
+        //microphone.stop();
         uploadRecording();
         recorder.clear();
 
@@ -103,10 +122,15 @@ function uploadRecording() {
 
         console.log(data);
 
-        sendToPath('post', '/recording', data, function (error, response) {
-            console.log(error);
-            console.log(response);
+        /*
+        sendToPath('post', '/api/recording', data, function (error, response) {
+            if(error) {
+                console.log(error);
+            } else {
+                console.log(response);
+            }
         });
+        */
     });
 
 }
