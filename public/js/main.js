@@ -2,6 +2,18 @@ $(document).ready(function() {
     console.log('Hej fra main');
 });
 
+function req_status(response) {
+    if (response.status >= 200 && response.status < 300) {
+        return Promise.resolve(response)
+    } else {
+        return Promise.reject(new Error(response.statusText))
+    }
+}
+
+function req_json(response) {
+    return response.json();
+}
+
 /**
  * send data to URL
  *

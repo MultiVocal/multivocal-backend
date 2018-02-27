@@ -1,15 +1,23 @@
 
-<h1>Contribute voice</h1>
-<p>Thanks for helping! Press record, give access to your microphone, and then say the text below</p>
+<div id="contribute-voice-container">
+    <h1>Contribute voice</h1>
+    <p>Thanks for helping! <br>Press record, give access to your microphone, and then say the text below</p>
 
-<p id="transcription"></p>
+    <p id="transcription">
+        Loading text...
+    </p>
 
-<button id="start-recording" class="button">Record</button>
-<button id="stop-recording"  class="button" disabled="true">Stop</button>
+    <button id="toggle-recording" class="button" data-action="start">Record</button>
 
-<p id="recording-message"></p>
+    <div id="contribute-thankyou">
+        Thank you! Your voice has been recorded. <br>
+        Feel free to add one one more.
+    </div>
 
-<div id="waveform"></div>
+    <p id="recording-message"></p>
+
+    <div id="waveform"></div>
+</div>
 
 <script src="//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/1.4.0/wavesurfer.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/1.2.3/plugin/wavesurfer.microphone.min.js"></script>

@@ -20,60 +20,58 @@ $(document).ready(function() {
 
     getTranscription();
 
-    $('#start-recording').on('click', startRecording);
-    $('#stop-recording').on('click', stopRecording);
+    $('body').on('click', '#toggle-recording[data-action="start"]', startRecording);
+    $('body').on('click', '#toggle-recording[data-action="stop"]', stopRecording);
 
-    console.log(recorder);
 });
 
 function getTranscription() {
 
-    let transcription_texts = [
-        'Lorem ipsum dolor sit amet, consectetur adipisicing elit, aliquid quo itaque',
-        'Neque id hic fugit sit perspiciatis tempore laborum ex, dolorem quia voluptatibus esse',
-        'Nobis consectetur animi nostrum aut, minus dolores',
-        'Consequatur laudantium laborum deleniti, omnis enim eius fuga voluptate adipisci distinctio culpa'
-    ];
+    $('#transcription').text('Loading text...');
+    $('#toggle-recording').addClass('disabled');
 
-    let transcription_text = transcription_texts[Math.floor(Math.random()*transcription_texts.length)];
-
-    $('#transcription').text(transcription_text);
-
-    /*
-    sendToPath('get', '/api/transcription', {}, function (error, response) {
-        if(error) {
-            console.log(error);
+    fetch('/transcriptions')
+    .then(req_status)
+    .then(req_json)
+    .then(function(data) {
+        if(data.message && data.message[0].transcription_text) {
+            $('#transcription').text(data.message[0].transcription_text);
+            $('#toggle-recording').removeClass('disabled');
         } else {
-            console.log(response);
+            $('#transcription').text('Could not get a text at the moment, please try again later!');
         }
+    }).catch(function(error) {
+        $('#transcription').text('Could not get a text at the moment, please try again later!');
     });
-    */
 }
 
 function startRecording() {
+    if ($('#toggle-recording').hasClass('disabled')) return;
+    $('#contribute-thankyou').hide();
+
     if(!hasGottenPermission) {
         initializeRecording();
         return;
     }
 
-    console.log('Recording');
-    $('#start-recording').prop('disabled', true);
-    $('#stop-recording').prop('disabled', false);
+    $('#toggle-recording').attr('data-action', 'stop').text('Stop');
     recorder && recorder.record();
     //microphone.start();
 }
 
 function stopRecording() {
-    console.log(recorder);
+    if ($('#toggle-recording').hasClass('disabled')) return;
+
     if(recorder && recorder.recording) {
+
+        $('#contribute-thankyou').show();
 
         recorder && recorder.stop();
         //microphone.stop();
         uploadRecording();
         recorder.clear();
 
-        $('#stop-recording').prop('disabled', true);
-        $('#start-recording').prop('disabled', false);
+        $('#toggle-recording').attr('data-action', 'start').text('Record');
         getTranscription();
     }
 }
