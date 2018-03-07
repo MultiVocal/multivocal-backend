@@ -4,6 +4,7 @@ body {
     color: $primary-font-color;
 
     font-family: $monospace-stack;
+    margin: 0;
 }
 
 *::selection, *::-webkit-selection, *::-moz-selection {
@@ -132,6 +133,15 @@ main {
     }
 }
 
+.alert-box {
+    background-color: $tertiary-color;
+    color: $secondary-color;
+    padding: 15px;
+    margin: 40px auto 10px;
+    max-width: 420px;
+    border-radius: 5px;
+}
+
 #contribute-voice-container, #rate-voices-container {
     text-align: center;
 
@@ -153,13 +163,6 @@ main {
 
     #contribute-thankyou {
         display: none;
-
-        background-color: $tertiary-color;
-        color: $secondary-color;
-        padding: 15px;
-        margin: 40px auto 10px;
-        max-width: 420px;
-        border-radius: 5px;
     }
 }
 
