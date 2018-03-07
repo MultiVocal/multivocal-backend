@@ -18,13 +18,15 @@ var https = require('https');
  * Get port from environment and store in Express.
  */
 
-var p = (process.env.NODE_ENV === 'development' ? '3000' : '80')
+var p = (process.env.NODE_ENV === 'development' ? '3000' : '443')
 var port = normalizePort(process.env.PORT || p);
 app.set('port', port);
 
 /**
  * Create HTTP server.
  */
+
+console.
 
 var server = https.createServer({
     key: privateKey,
