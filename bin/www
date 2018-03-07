@@ -1,8 +1,5 @@
 #!/usr/bin/env node
 
-var cert = require('');
-var
-
 var privateKey = fs.readFileSync('../certs/privkey.pem');
 var certificate = fs.readFileSync('../certs/fullchain.pem');
 
