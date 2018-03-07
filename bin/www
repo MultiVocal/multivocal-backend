@@ -2,8 +2,8 @@
 
 var fs = require('fs');
 
-var privateKey = fs.readFileSync('../certs/privkey.pem');
-var certificate = fs.readFileSync('../certs/fullchain.pem');
+var privateKey = fs.readFileSync('/etc/letsencrypt/live/multivocal.org/privkey.pem');
+var certificate = fs.readFileSync('/etc/letsencrypt/live/multivocal.org/fullchain.pem');
 
 /**
  * Module dependencies.
