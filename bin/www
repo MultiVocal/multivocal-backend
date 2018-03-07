@@ -1,5 +1,11 @@
 #!/usr/bin/env node
 
+var cert = require('');
+var
+
+var privateKey = fs.readFileSync('../certs/privkey.pem');
+var certificate = fs.readFileSync('../certs/fullchain.pem');
+
 /**
  * Module dependencies.
  */
@@ -20,7 +26,10 @@ app.set('port', port);
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
+var server = https.createServer({
+    key: privateKey,
+    cert: certificate
+}, app);
 
 /**
  * Listen on provided port, on all network interfaces.
