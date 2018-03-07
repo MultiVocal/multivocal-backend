@@ -26,7 +26,6 @@ app.set('port', port);
  * Create HTTP server.
  */
 
-console.
 
 var server = https.createServer({
     key: privateKey,
