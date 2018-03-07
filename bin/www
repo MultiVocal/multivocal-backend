@@ -11,7 +11,7 @@ var certificate = fs.readFileSync('/etc/letsencrypt/live/multivocal.org/fullchai
 
 var app = require('../app');
 var debug = require('debug')('multivocal-backend:server');
-var http = require('http');
+var https = require('https');
 
 /**
  * Get port from environment and store in Express.
