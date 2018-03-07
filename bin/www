@@ -2,15 +2,16 @@
 
 var fs = require('fs');
 
-var privateKey = fs.readFileSync('/etc/letsencrypt/live/multivocal.org/privkey.pem');
-var certificate = fs.readFileSync('/etc/letsencrypt/live/multivocal.org/fullchain.pem');
+var privateKey  = fs.readFileSync('/etc/letsencrypt/live/multivocal.org/privkey.pem');
+var certificate = fs.readFileSync('/etc/letsencrypt/live/multivocal.org/cert.pem');
 
 /**
  * Module dependencies.
  */
 
-var app = require('../app');
+var app   = require('../app');
 var debug = require('debug')('multivocal-backend:server');
+var http  = require('http');
 var https = require('https');
 
 /**
