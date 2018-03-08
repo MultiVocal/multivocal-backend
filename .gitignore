@@ -3,3 +3,4 @@ node_modules/
 configs/
 yarn-error.log
 services/contentfulClient.js
+certs/
