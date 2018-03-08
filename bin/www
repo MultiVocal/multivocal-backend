@@ -2,9 +2,6 @@
 
 var fs = require('fs');
 
-var privateKey  = fs.readFileSync('/etc/letsencrypt/live/multivocal.org/privkey.pem');
-var certificate = fs.readFileSync('/etc/letsencrypt/live/multivocal.org/cert.pem');
-
 /**
  * Module dependencies.
  */
@@ -12,13 +9,11 @@ var certificate = fs.readFileSync('/etc/letsencrypt/live/multivocal.org/cert.pem
 var app   = require('../app');
 var debug = require('debug')('multivocal-backend:server');
 var http  = require('http');
-var https = require('https');
-
 /**
  * Get port from environment and store in Express.
  */
 
-var p = (process.env.NODE_ENV === 'development' ? '3000' : '443')
+var p = '3000'
 var port = normalizePort(process.env.PORT || p);
 app.set('port', port);
 
@@ -27,10 +22,7 @@ app.set('port', port);
  */
 
 
-var server = https.createServer({
-    key: privateKey,
-    cert: certificate
-}, app);
+var server = http.createServer(app);
 
 /**
  * Listen on provided port, on all network interfaces.
