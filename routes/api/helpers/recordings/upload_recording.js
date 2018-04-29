@@ -22,7 +22,7 @@ const validateRecording = (state, next) => {
 
     state.mongo_client     = req.mongo_client;
     state.file             = req.file || req.body.file;
-    state.transcription_id = req.transcription_id;
+    state.transcription_id = req.body.transcription_id;
     state.client_id        = req.body.client_id;
     state.notes            = req.body.notes;
     state.S3               = req.S3;
