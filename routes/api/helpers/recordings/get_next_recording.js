@@ -39,7 +39,7 @@ const getWithFewestRatings = (state, next) => {
             }
 
             if (get_result.length === 1) {
-                state.next_recording = get_result;
+                state.next_recording = get_result[0];
                 return next();
             }
 
@@ -100,7 +100,6 @@ const fetchFileFromS3 = (state, next) => {
 
     let next_recording = state.next_recording;
 
-    console.log(next_recording)
     const file_name = next_recording.file_name;
 
     const params = {
@@ -129,7 +128,7 @@ const getTranscriptionText = (state, next) => {
         transcription_id
     };
 
-    req.mongo_client.collection('transcriptions').find(get_query).toArray((error, get_result) => {
+    req.mongo_client.collection('transcriptions').findOne(get_query, (error, get_result) => {
         if (error) {
             return next(error);
         }
