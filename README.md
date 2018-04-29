@@ -1,5 +1,5 @@
+# **THERE ARE BREAKING CHANGES IN THIS BRANCH, DO NOT MERGE INTO MASTER**
 # multivocal-backend
-
 
 ### Description
 This is the backend & rest API for the multivocal project.

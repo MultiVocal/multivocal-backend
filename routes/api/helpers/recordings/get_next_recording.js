@@ -1,6 +1,7 @@
 'use strict'
 
-const aws_config = require('../../../configs/aws_credentials.json');
+const aws_config = require('./../../../../configs/aws_credentials.json');
+const utils      = require('./utils.js');
 
 /**
  * Adds the recordings with fewest ratings to state.recordings
@@ -23,8 +24,8 @@ const getWithFewestRatings = (state, next) => {
             return next(error);
         }
 
-        if (!result) {
-            return new Error("No recordings to be rated");
+        if (!result || !result[0]) {
+            return next(new Error("No recordings to be rated"));
         }
 
         let amount = result[0].rating_amount;
@@ -49,6 +50,10 @@ const getWithFewestRatings = (state, next) => {
     });
 }
 
+/**
+ * Inserts the recording with the most extreme rating value into state.next_recording
+ * @param  state.recordings
+ */
 const getRatingExtremes = (state, next) => {
     let recordings = state.recordings;
 
@@ -63,7 +68,7 @@ const getRatingExtremes = (state, next) => {
 
     if (!recordings[0].rating || recordings[0] === 0) {
         // If recordings have not yet been rated, get random.
-        state.next_recording = getRandomRecording(recordings);
+        state.next_recording = utils.getRandomRecording(recordings);
         return next();
     }
 
@@ -81,7 +86,7 @@ const getRatingExtremes = (state, next) => {
     const min_diff = Math.abs(mid_value - min_recording.rating);
 
     if (max_diff === min_diff) {
-        state.next_recording = getRandomRecording(recordings);
+        state.next_recording = utils.getRandomRecording(recordings);
         return next();
     }
 
@@ -92,34 +97,35 @@ const getRatingExtremes = (state, next) => {
 
 const fetchFileFromS3 = (state, next) => {
     const req = state.req;
-    const file_name = next_recording.file_name;
 
     let next_recording = state.next_recording;
+
+    console.log(next_recording)
+    const file_name = next_recording.file_name;
 
     const params = {
         Key: file_name,
         Bucket: aws_config.Bucket
     }
 
-    console.log(params);
-
-    req.s3.getObject(params, function(err, data) {
+    req.S3.getObject(params, function(err, data) {
         if (err) {
             return next(err);
         }
 
+        state.next_recording.file = data;
 
-    }
+        state.recording_response = {
+            status: 0,
+            data: state.next_recording
+        }
+
+        next();
+    })
 
 };
 
-const getRandomRecording = (recordings) => {
-    const min  = 0;
-    const max  = Math.floor(recordings.length - 1);
-    const rand = Math.floor(Math.random() * (max - min + 1)) + min;
 
-    return recordings[rand];
-}
 
 module.exports = {
     getWithFewestRatings,
