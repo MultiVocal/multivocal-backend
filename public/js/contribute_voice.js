@@ -1,7 +1,7 @@
 var audio_context;
 var recorder;
 var hasGottenPermission = false;
-var currentTranscriptionID = null;
+let currentTranscriptionID = null;
 var clientID = '5ad4ea57e4688345172fe075';
 
 var wavesurfer = WaveSurfer.create({
@@ -45,6 +45,7 @@ function getTranscription() {
             $('#transcription').text('Could not get a text at the moment, please try again later!');
         }
     }).catch(function(error) {
+        console.log(error);
         currentTranscriptionID = null;
         $('#transcription').text('Could not get a text at the moment, please try again later!');
     });
@@ -73,7 +74,7 @@ function stopRecording() {
 
         recorder && recorder.stop();
         //microphone.stop();
-        uploadRecording();
+        uploadRecording(currentTranscriptionID);
         recorder.clear();
 
         $('#toggle-recording').attr('data-action', 'start').text('Record');
@@ -111,7 +112,7 @@ function initializeRecording() {
         });
 }
 
-function uploadRecording() {
+function uploadRecording(transcriptionID) {
 
     recorder && recorder.exportWAV(function(blob) {
         file = blob;
@@ -119,7 +120,7 @@ function uploadRecording() {
         var formData = new FormData();
 
         formData.append('file', file);
-        formData.append('transcription_id', currentTranscriptionID);
+        formData.append('transcription_id', transcriptionID);
         formData.append('client_id', clientID);
         formData.append('notes', '');
 
