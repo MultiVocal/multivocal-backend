@@ -3,10 +3,11 @@
 const verifyRateRecording = (state, next) => {
     const req = state.req;
 
+
     let rating = req.body.new_rating;
     let file_name = req.body.file_name;
 
-    if (!rating || !file_name) {
+    if (rating === undefined || file_name === undefined) {
         let error_obj = {
             reason: "Request was missing data, or the data was invalid",
             data: {
@@ -16,7 +17,6 @@ const verifyRateRecording = (state, next) => {
         }
 
         error_obj.status = 422;
-
         return next(error_obj);
     }
 
