@@ -1,5 +1,7 @@
 'use strict'
 
+const aws_config = require('../../../configs/aws_credentials.json');
+
 /**
  * Adds the recordings with fewest ratings to state.recordings
  * @param  state.req
@@ -88,6 +90,29 @@ const getRatingExtremes = (state, next) => {
     next();
 }
 
+const fetchFileFromS3 = (state, next) => {
+    const req = state.req;
+    const file_name = next_recording.file_name;
+
+    let next_recording = state.next_recording;
+
+    const params = {
+        Key: file_name,
+        Bucket: aws_config.Bucket
+    }
+
+    console.log(params);
+
+    req.s3.getObject(params, function(err, data) {
+        if (err) {
+            return next(err);
+        }
+
+
+    }
+
+};
+
 const getRandomRecording = (recordings) => {
     const min  = 0;
     const max  = Math.floor(recordings.length - 1);
@@ -98,5 +123,6 @@ const getRandomRecording = (recordings) => {
 
 module.exports = {
     getWithFewestRatings,
-    getRatingExtremes
+    getRatingExtremes,
+    fetchFileFromS3
 }

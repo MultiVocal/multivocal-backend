@@ -100,6 +100,7 @@ router.get('/recordings/next', (req, res, next) => {
     Chains(state)
         .then(Recordings.getWithFewestRatings)
         .then(Recordings.getRatingExtremes)
+        .then(Recordings.fetchFileFromS3)
         .then((state, next) => {
             res.send(state.next_recording)
         })
