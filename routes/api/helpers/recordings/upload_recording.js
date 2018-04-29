@@ -66,7 +66,8 @@ const createRecordingObject = (state, next) => {
         client_id: new ObjectId(client_id),
         upload_time: new Date(),
         verified: false,
-        rating: null
+        rating: null,
+        rating_amount: 0
     }
 
     next();
