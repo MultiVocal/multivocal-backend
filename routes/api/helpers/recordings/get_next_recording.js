@@ -115,14 +115,34 @@ const fetchFileFromS3 = (state, next) => {
 
         state.next_recording.file = data;
 
+        next();
+    })
+
+};
+
+const getTranscriptionText = (state, next) => {
+    const req              = state.req;
+    const next_recording   = state.next_recording;
+    const transcription_id = next_recording.transcription_id;
+
+    const get_query = {
+        transcription_id
+    };
+
+    req.mongo_client.collection('transcriptions').find(get_query).toArray((error, get_result) => {
+        if (error) {
+            return next(error);
+        }
+
+        state.next_recording.transcription_text = get_result.transcription_text;
+
         state.recording_response = {
             status: 0,
             data: state.next_recording
         }
 
         next();
-    })
-
+    });
 };
 
 
@@ -130,5 +150,6 @@ const fetchFileFromS3 = (state, next) => {
 module.exports = {
     getWithFewestRatings,
     getRatingExtremes,
-    fetchFileFromS3
+    fetchFileFromS3,
+    getTranscriptionText
 }

@@ -26,7 +26,7 @@ const verifyRateRecording = (state, next) => {
     next();
 }
 
-const addRatingToDb = (state, next) => {
+    const addRatingToDb = (state, next) => {
     const file_name    = state.file_name;
     const mongo_client = state.mongo_client;
     const rating       = state.rating;
@@ -38,6 +38,9 @@ const addRatingToDb = (state, next) => {
         update: {
             $set: {
                 rating
+            },
+            $inc: {
+                rating_amount: 1
             }
         }
     }

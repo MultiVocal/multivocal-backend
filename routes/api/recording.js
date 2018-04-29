@@ -64,6 +64,7 @@ router.get('/recordings/next', (req, res, next) => {
         .then(get_next_recording.getWithFewestRatings)
         .then(get_next_recording.getRatingExtremes)
         .then(get_next_recording.fetchFileFromS3)
+        .then(get_next_recording.getTranscriptionText)
         .then((state, next) => {
             res.send(state.next_recording)
         })
