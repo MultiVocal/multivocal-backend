@@ -1,5 +1,4 @@
 $(document).ready(function() {
-    console.log('Hej fra main');
 });
 
 function req_status(response) {
