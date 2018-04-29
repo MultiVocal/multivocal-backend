@@ -150,7 +150,7 @@ router.delete('/recording/:file_name', (req, res, next) => {
 });
 
 /* Set a rating for a recording*/
-router.put('/recording/:file_name/rate/:rating', (req, res, next) => {
+router.put('/recording/rate/', (req, res, next) => {
     let state = {
         req,
         aws_config,

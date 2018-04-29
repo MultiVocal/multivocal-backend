@@ -3,8 +3,8 @@
 const verifyRateRecording = (state, next) => {
     const req = state.req;
 
-    let rating = req.params.rating;
-    let file_name = req.params.file_name;
+    let rating = req.body.new_rating;
+    let file_name = req.body.file_name;
 
     if (!rating || !file_name) {
         let error_obj = {
@@ -20,8 +20,8 @@ const verifyRateRecording = (state, next) => {
         return next(error_obj);
     }
 
-    state.rating = req.params.rating;
-    state.file_name = req.params.file_name;
+    state.rating = req.body.new_rating;
+    state.file_name = req.body.file_name;
 
     next();
 }
