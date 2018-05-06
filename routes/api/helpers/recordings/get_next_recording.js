@@ -1,5 +1,8 @@
 'use strict'
 
+const aws_config = require('./../../../../configs/aws_credentials.json');
+const utils      = require('./utils.js');
+
 /**
  * Adds the recordings with fewest ratings to state.recordings
  * @param  state.req
@@ -21,8 +24,8 @@ const getWithFewestRatings = (state, next) => {
             return next(error);
         }
 
-        if (!result) {
-            return new Error("No recordings to be rated");
+        if (!result || !result[0]) {
+            return next(new Error("No recordings to be rated"));
         }
 
         let amount = result[0].rating_amount;
@@ -36,7 +39,7 @@ const getWithFewestRatings = (state, next) => {
             }
 
             if (get_result.length === 1) {
-                state.next_recording = get_result;
+                state.next_recording = get_result[0];
                 return next();
             }
 
@@ -47,6 +50,10 @@ const getWithFewestRatings = (state, next) => {
     });
 }
 
+/**
+ * Inserts the recording with the most extreme rating value into state.next_recording
+ * @param  state.recordings
+ */
 const getRatingExtremes = (state, next) => {
     let recordings = state.recordings;
 
@@ -61,7 +68,7 @@ const getRatingExtremes = (state, next) => {
 
     if (!recordings[0].rating || recordings[0] === 0) {
         // If recordings have not yet been rated, get random.
-        state.next_recording = getRandomRecording(recordings);
+        state.next_recording = utils.getRandomRecording(recordings);
         return next();
     }
 
@@ -79,7 +86,7 @@ const getRatingExtremes = (state, next) => {
     const min_diff = Math.abs(mid_value - min_recording.rating);
 
     if (max_diff === min_diff) {
-        state.next_recording = getRandomRecording(recordings);
+        state.next_recording = utils.getRandomRecording(recordings);
         return next();
     }
 
@@ -88,15 +95,60 @@ const getRatingExtremes = (state, next) => {
     next();
 }
 
-const getRandomRecording = (recordings) => {
-    const min  = 0;
-    const max  = Math.floor(recordings.length - 1);
-    const rand = Math.floor(Math.random() * (max - min + 1)) + min;
+const fetchFileFromS3 = (state, next) => {
+    const req = state.req;
 
-    return recordings[rand];
-}
+    let next_recording = state.next_recording;
+
+    const file_name = next_recording.file_name;
+
+    const params = {
+        Key: file_name,
+        Bucket: aws_config.Bucket
+    }
+
+    req.S3.getObject(params, function(err, data) {
+        if (err) {
+            return next(err);
+        }
+
+        state.next_recording.file = data;
+
+        next();
+    })
+
+};
+
+const getTranscriptionText = (state, next) => {
+    const req              = state.req;
+    const next_recording   = state.next_recording;
+    const transcription_id = next_recording.transcription_id;
+
+    const get_query = {
+        transcription_id
+    };
+
+    req.mongo_client.collection('transcriptions').findOne(get_query, (error, get_result) => {
+        if (error) {
+            return next(error);
+        }
+
+        state.next_recording.transcription_text = get_result.transcription_text;
+
+        state.recording_response = {
+            status: 0,
+            data: state.next_recording
+        }
+
+        next();
+    });
+};
+
+
 
 module.exports = {
     getWithFewestRatings,
-    getRatingExtremes
+    getRatingExtremes,
+    fetchFileFromS3,
+    getTranscriptionText
 }

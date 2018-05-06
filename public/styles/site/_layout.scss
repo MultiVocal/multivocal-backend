@@ -198,11 +198,11 @@ main {
             fill: #111111;
         }
 
-        &:hover svg {
+        &:not([disabled]):hover svg {
             fill: $tertiary-color;
         }
 
-        &:last-of-type svg {
+        &:not([disabled]):last-of-type svg {
             transform: scaleY(-1);
         }
     }

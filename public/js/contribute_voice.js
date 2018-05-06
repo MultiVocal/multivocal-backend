@@ -1,6 +1,8 @@
 var audio_context;
 var recorder;
 var hasGottenPermission = false;
+let currentTranscriptionID = null;
+var clientID = '5ad4ea57e4688345172fe075';
 
 var wavesurfer = WaveSurfer.create({
     container: '#waveform',
@@ -34,13 +36,17 @@ function getTranscription() {
     .then(req_status)
     .then(req_json)
     .then(function(data) {
+        console.log(data);
         if(data.message && data.message[0].transcription_text) {
+            currentTranscriptionID = data.message[0].transcription_id;
             $('#transcription').text(data.message[0].transcription_text);
             $('#toggle-recording').removeClass('disabled');
         } else {
             $('#transcription').text('Could not get a text at the moment, please try again later!');
         }
     }).catch(function(error) {
+        console.log(error);
+        currentTranscriptionID = null;
         $('#transcription').text('Could not get a text at the moment, please try again later!');
     });
 }
@@ -68,7 +74,7 @@ function stopRecording() {
 
         recorder && recorder.stop();
         //microphone.stop();
-        uploadRecording();
+        uploadRecording(currentTranscriptionID);
         recorder.clear();
 
         $('#toggle-recording').attr('data-action', 'start').text('Record');
@@ -106,31 +112,22 @@ function initializeRecording() {
         });
 }
 
-function uploadRecording() {
+function uploadRecording(transcriptionID) {
 
     recorder && recorder.exportWAV(function(blob) {
         file = blob;
 
-        var data = {
-            file : file,
-            transcription_id : '',
-            client_id : '',
-            notes : []
-        };
+        var formData = new FormData();
 
-        console.log(data);
+        formData.append('file', file);
+        formData.append('transcription_id', transcriptionID);
+        formData.append('client_id', clientID);
+        formData.append('notes', '');
 
-        /*
-        sendToPath('post', '/api/recording', data, function (error, response) {
-            if(error) {
-                console.log(error);
-            } else {
-                console.log(response);
-            }
-        });
-        */
+        var request = new XMLHttpRequest();
+        request.open('POST', '/api/recording');
+        request.send(formData);
     });
-
 }
 
 function createDownloadLink() {
