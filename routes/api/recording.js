@@ -21,15 +21,32 @@ const verify_recording                = require('./helpers/recordings/verify_rec
 
 
 /* Post transcription to the database */
-router.post('/recording', upload.single('file'), (req, res, next) => {
+router.post('/recording/upload', upload.single('file'), (req, res, next) => {
     let state = {
         req,
         aws_config
     }
 
     Chains(state)
-        .then(upload_recording.validateRecording)
+        .then(upload_recording.validateRecordingFile)
         .then(upload_recording.uploadFileToS3)
+        .then((state, next) => {
+            res.send(state.upload_response);
+        })
+        .catch((error, state) => {
+            next(error);
+        });
+});
+
+/* Post transcription to the database */
+router.post('/recording/submit', (req, res, next) => {
+    let state = {
+        req,
+        aws_config
+    }
+
+    Chains(state)
+        .then(upload_recording.validateRecordingObject)
         .then(upload_recording.createRecordingObject)
         .then(upload_recording.insertRecordingInDb)
         .then(upload_recording.reportUploadToSlack)
