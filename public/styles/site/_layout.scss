@@ -162,7 +162,8 @@ main {
         margin: 0 10px;
     }
 
-    #contribute-thankyou {
+    #contribute-thankyou,
+    #rate-thankyou  {
         display: none;
     }
 }
@@ -198,11 +199,11 @@ main {
             fill: #111111;
         }
 
-        &:not([disabled]):hover svg {
+        &:not(.disabled):hover svg {
             fill: $tertiary-color;
         }
 
-        &:not([disabled]):last-of-type svg {
+        &:last-of-type svg {
             transform: scaleY(-1);
         }
     }

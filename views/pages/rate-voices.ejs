@@ -2,18 +2,13 @@
 <div id="rate-voices-container">
     <h1>Rate voices</h1>
 
-    <div id="rate-not-working" class="alert-box">
-        Unfortunately, rating voices is not available at the moment! <br>
-        Check back soon, we're working hard on fixing it :)
-    </div>
-
     <p>Press play to listen to the existing recording. <br>If you think it sounds alright and the voice says what the text below says, then give it a thumbs up. Else, give it a thumbs down. Thanks! </p>
 
-    <button id="play-voice" class="button">Play</button>
+    <button id="play-voice" class="button disabled">Play</button>
 
     <p id="transcription">Loading recording...</p>
 
-    <button id="rate-voice-pos" class="button rate-voice-btn" data-rate-val="1">
+    <button id="rate-voice-pos" class="button rate-voice-btn disabled" data-rate-val="1">
         <svg version="1.1" id="thumbs-up" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="566.929px" height="623.622px" viewBox="153.139 -12.178 566.929 623.622" enable-background="new 153.139 -12.178 566.929 623.622" xml:space="preserve">
             <path d="M700.825,374.171c0-12.781-3.534-25.073-10.138-35.746c9.479-11.926,14.723-26.631,14.723-42.027
     c0-9.499-2.05-18.857-6.094-27.832c-14.405-44.708-55.398-58.544-85.078-65.06c-39.977-8.776-92.465-9.759-153.242-10.897
@@ -45,7 +40,7 @@
         </svg>
 
     </button>
-    <button id="rate-voice-pos" class="button rate-voice-btn" data-rate-val="0">
+    <button id="rate-voice-pos" class="button rate-voice-btn disabled" data-rate-val="0">
         <svg version="1.1" id="thumbs-down" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="566.929px" height="623.622px" viewBox="153.139 -12.178 566.929 623.622" enable-background="new 153.139 -12.178 566.929 623.622" xml:space="preserve">
             <path d="M700.825,374.171c0-12.781-3.534-25.073-10.138-35.746c9.479-11.926,14.723-26.631,14.723-42.027
     c0-9.499-2.05-18.857-6.094-27.832c-14.405-44.708-55.398-58.544-85.078-65.06c-39.977-8.776-92.465-9.759-153.242-10.897
@@ -77,6 +72,11 @@
         </svg>
 
     </button>
+
+    <div id="rate-thankyou" class="alert-box">
+        Thank you for rating this recording! <br>
+        Feel free to rate more.
+    </div>
 
 </div>
 

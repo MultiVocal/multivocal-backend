@@ -23,6 +23,13 @@ $(document).ready(function() {
 
     $('.rate-voice-btn').on('click', function() {
         var usersRating = parseInt($(this).attr('data-rate-val'));
+
+        $('#rate-thankyou').show();
+        $('#transcription').text('Loading recording...');
+
+        $('#play-voice').addClass('disabled');
+        $('.rate-voice-btn').addClass('disabled');
+
         sendRating(usersRating)
     });
 
@@ -30,14 +37,11 @@ $(document).ready(function() {
 });
 
 function getNextRecording() {
-    $('#play-voice').addClass('disabled');
-    $('.rate-voice-btn').addClass('disabled');
 
     fetch('/api/recordings/next')
     .then(req_status)
     .then(req_json)
     .then(function(data) {
-        console.log(data);
         if(data) {
             currentFileName = data.file_name;
             currentRecordingRating = !data.rating ? 0 : parseInt(data.rating);
@@ -65,8 +69,6 @@ function sendRating(uRating) {
         file_name : currentFileName,
         new_rating : newRating
     };
-
-    console.log(data);
 
     fetch('api/recording/rate', {
         method: 'PUT',
@@ -96,7 +98,7 @@ function loadAudio( bytes ) {
     });
 }
 
-function playRecording( ) {
+function playRecording() {
     var source = context.createBufferSource();
     source.buffer = currentRecordingBuffer;
     source.connect( context.destination );
