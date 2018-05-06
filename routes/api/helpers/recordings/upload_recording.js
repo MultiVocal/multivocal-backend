@@ -24,7 +24,7 @@ const validateRecordingFile = (state, next) => {
 const validateRecordingObject = (state, next) => {
     const req = state.req;
 
-    if (!req.body.transcription_id || !req.body.client_id) {
+    if (!req.body.transcription_id || !req.body.client_id || !ObjectId.isValid(req.body.client_id)) {
         let error_obj = {
             reason: "Request was missing data",
             data: {
