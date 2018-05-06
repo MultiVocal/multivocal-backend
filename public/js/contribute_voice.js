@@ -115,18 +115,48 @@ function initializeRecording() {
 function uploadRecording(transcriptionID) {
 
     recorder && recorder.exportWAV(function(blob) {
-        file = blob;
 
         var formData = new FormData();
 
-        formData.append('file', file);
-        formData.append('transcription_id', transcriptionID);
-        formData.append('client_id', clientID);
-        formData.append('notes', '');
+        formData.append('file', blob);
 
-        var request = new XMLHttpRequest();
-        request.open('POST', '/api/recording');
-        request.send(formData);
+        fetch('/api/recording/upload', {
+            body: formData,
+            method: 'POST'
+        })
+        .then(req_status)
+        .then(req_json)
+        .then(function(data) {
+            var fileName = data.file_name;
+            submitRecording(fileName, transcriptionID);
+        }).catch(function(error) {
+            console.log(error);
+        });
+    });
+}
+
+function submitRecording(fileName, transcriptionID) {
+
+    var data = {
+        file_name: fileName,
+        transcription_id: transcriptionID,
+        client_id: clientID,
+        notes: ''
+    };
+
+    fetch('/api/recording/submit', {
+        body: JSON.stringify(data),
+        method: 'POST',
+        headers: new Headers({
+            'Content-Type': 'application/json'
+        })
+    })
+    .then(req_status)
+    .then(req_json)
+    .then(function(data) {
+        
+    }).catch(function(error) {
+        
     });
 }
 

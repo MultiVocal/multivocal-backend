@@ -24,12 +24,13 @@ const validateRecordingFile = (state, next) => {
 const validateRecordingObject = (state, next) => {
     const req = state.req;
 
-    if (!req.body.transcription_id || !req.body.client_id) {
+    if (!req.body.transcription_id || !req.body.client_id || !req.body.file_name) {
         let error_obj = {
             reason: "Request was missing data",
             data: {
                 transcription_id: transcription_id,
-                client_id: client_id
+                client_id: client_id,
+                file_name: file_name
             }
         }
         error_obj.status = 422;
@@ -39,6 +40,7 @@ const validateRecordingObject = (state, next) => {
 
     state.mongo_client     = req.mongo_client;
     state.transcription_id = req.body.transcription_id;
+    state.file_name        = req.body.file_name;
     state.client_id        = req.body.client_id;
     state.notes            = req.body.notes;
     state.S3               = req.S3;
