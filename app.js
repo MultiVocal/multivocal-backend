@@ -14,6 +14,7 @@ var contentful = require('contentful');
 
 var recording = require('./routes/api/recording');
 var transcriptions = require('./routes/api/transcriptions');
+var error_reporter = require('./error_reporter')
 
 var app = express();
 
@@ -72,6 +73,8 @@ app.use(function(err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
   res.send(err);
+
+  error_reporter.reportErrorToSlack(err)
 });
 
 const setupMongo = (callback) => {
