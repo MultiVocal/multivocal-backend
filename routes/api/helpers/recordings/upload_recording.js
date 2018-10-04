@@ -29,9 +29,9 @@ const validateRecordingObject = (state, next) => {
         let error_obj = {
             reason: "Request was missing data",
             data: {
-                transcription_id: transcription_id,
-                client_id: client_id,
-                file_name: file_name
+                transcription_id: req.body.transcription_id,
+                client_id: req.body.client_id,
+                file_name: req.body.file_name
             }
         }
         error_obj.status = 422;
