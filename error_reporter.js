@@ -8,14 +8,15 @@ const reportErrorToSlack = (error) => {
 
     const current_time = new Date();
 
-    // const error_text = `${error.status} - ${error.message}
-    // stack:
-    // ${error.stack}
-    //
-    //
-    //
-    // data:
-    // ${error.data}`
+    error_obj = JSON.stringify(error, 0, 4);
+
+    const error_text = `${error.message}
+    ${error_obj}
+
+
+
+    stack:
+    ${error.stack}`
 
     const json_data = {
         "attachments": [{
@@ -24,7 +25,7 @@ const reportErrorToSlack = (error) => {
             "author_name": "MultiVocal Backend",
             "author_icon": "https://scontent-arn2-1.cdninstagram.com/t51.2885-19/s150x150/19227138_110056859607819_125825112795512832_n.jpg",
             "title": `${error.message}`,
-            "text": JSON.stringify(error, 0, 4),
+            "text": error_text,
             "fields": [{
                 "title": "Priority",
                 "value": "High",
