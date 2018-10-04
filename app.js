@@ -76,7 +76,15 @@ app.use(function(err, req, res, next) {
 
 const setupMongo = (callback) => {
     // Setup mongo connection pool
-    var mongoUrl = `mongodb://localhost:${mongoConfig.port}/${mongoConfig.db}`;
+
+    var mongoUrl = ''
+
+    if (process.env.NODE_ENV === 'development') {
+        var mongoUrl = `mongodb://localhost:${mongoConfig.port}/${mongoConfig.db}`;
+    } else {
+        var mongoUrl = `mongodb://${mongoConfig.user}:${mongoConfig.pwd}@localhost:${mongoConfig.port}/${mongoConfig.db}`;
+    }
+
 
     db.connect(mongoUrl, function(err){
         if (err) {
