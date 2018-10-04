@@ -8,7 +8,7 @@ const reportErrorToSlack = (error) => {
 
     const current_time = new Date();
 
-    const error_text = `${error.message}
+    const error_text = `${error.status} - ${error.message}
     stack:
     ${error.stack}
 
