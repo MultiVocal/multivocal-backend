@@ -90,9 +90,9 @@ const setupMongo = (callback) => {
 
 const setupS3 = (callback) => {
     // Setup aws client
-    if (process.env.NODE_ENV === 'development') {
+    // if (process.env.NODE_ENV === 'development') {
         aws_sdk.config.loadFromPath('./configs/aws_credentials.json') || {};
-    }
+    // }
 
     var s3_client = new aws_sdk.S3();
     return callback(undefined, s3_client)
