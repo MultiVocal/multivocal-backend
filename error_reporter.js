@@ -8,7 +8,7 @@ const reportErrorToSlack = (error) => {
 
     const current_time = new Date();
 
-    error_obj = JSON.stringify(error, 0, 4);
+    const error_obj = JSON.stringify(error, 0, 4);
 
     const error_text = `${error.message}
     ${error_obj}
