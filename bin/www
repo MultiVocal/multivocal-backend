@@ -1,24 +1,26 @@
 #!/usr/bin/env node
 
+var fs = require('fs');
+
 /**
  * Module dependencies.
  */
 
-var app = require('../app');
+var app   = require('../app');
 var debug = require('debug')('multivocal-backend:server');
-var http = require('http');
-
+var http  = require('http');
 /**
  * Get port from environment and store in Express.
  */
 
-var p = (process.env.NODE_ENV === 'development' ? '3000' : '80')
+var p = '3000'
 var port = normalizePort(process.env.PORT || p);
 app.set('port', port);
 
 /**
  * Create HTTP server.
  */
+
 
 var server = http.createServer(app);
 

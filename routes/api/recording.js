@@ -1,205 +1,208 @@
 'use strict';
 
-const express = require('express');
-const router = express.Router();
-const multer  = require('multer');
-const upload = multer();
-const aws_sdk = require('aws-sdk');
-const ObjectId = require('mongodb').ObjectId;
-const aws_config = require('../../configs/aws_credentials.json');
+const express             = require('express');
+const router              = express.Router();
+const multer              = require('multer');
+const upload              = multer();
+const aws_sdk             = require('aws-sdk');
+const Chains              = require('c4s');
+const ObjectId            = require('mongodb').ObjectId;
+const aws_config          = require('../../configs/aws_credentials.json');
+const helpers             = require('./helpers.js');
+
+const upload_recording                = require('./helpers/recordings/upload_recording.js');
+const get_next_recording              = require('./helpers/recordings/get_next_recording.js');
+const get_recordings_by_transcription = require('./helpers/recordings/get_recordings_by_transcription.js');
+const get_all_recordings              = require('./helpers/recordings/get_all_recordings.js');
+const edit_recordings                 = require('./helpers/recordings/edit_recording.js');
+const delete_recording                = require('./helpers/recordings/delete_recording.js');
+const rate_recording                  = require('./helpers/recordings/rate_recording.js');
+const verify_recording                = require('./helpers/recordings/verify_recording.js');
+
 
 /* Post transcription to the database */
-router.post('/recording', upload.single('file'), (req, res, next) => {
-    let file               = req.file || req.body.file;
-    let transcription_id   = req.body.transcription_id;
-    let client_id          = req.body.client_id;
-    let notes              = req.body.notes || [];
-
-    if (!file || !transcription_id) {
-        res.status(422);
-        let error_obj = {
-            reason: "Request was missing data",
-            data: {
-                file: !!file,
-                transcription_id: !!transcription_id
-            }
-        }
-
-        return res.send(error_obj);
+router.post('/recording/upload', upload.single('file'), (req, res, next) => {
+    let state = {
+        req,
+        aws_config
     }
 
-    // 1: Create object to insert in mongodb
-    // 2: Use mongodb dep to inserrt
-    // 3: Return  op result
-    let file_name = new ObjectId();
-
-    let s3_opts = {
-        Bucket: aws_config.Bucket,
-        Key: file_name.toString(),
-        Body: file.buffer
-    }
-
-    req.S3.upload(s3_opts, (err, data) => {
-        if (err) {
-            // TODO error handling
-            console.log(err)
-            return next(err);
-        }
-
-        let mongo_obj = {
-            file_name,
-            transcription_id,
-            notes,
-            client_id,
-            upload_time: new Date().getTime(),
-            verified: false,
-            rating: null
-        }
-
-        req.mongo_client.collection('recordings').insert(mongo_obj, (err, result) => {
-
-            if (err) {
-                // TODO: Some sweet error handling
-                console.log(err)
-                return next(err);
-            }
-
-            let response = {
-                status: 0,
-                message: "succesfully added file"
-            }
-
-            return res.send(response);
+    Chains(state)
+        .then(upload_recording.validateRecordingFile)
+        .then(upload_recording.uploadFileToS3)
+        .then((state, next) => {
+            res.send(state.upload_response);
+        })
+        .catch((error, state) => {
+            next(error);
         });
-    });
 });
 
-/* Get transcription from db */
-router.get('/recordings/:transcription_id', (req, res, next) => {
-    let transcription_id = req.params.transcription_id;
-    //TODO: validate id
-    const query = {
-        transcription_id,
-        deleted: {
-            $ne: true
-        }
+/* Post transcription to the database */
+router.post('/recording/submit', (req, res, next) => {
+    let state = {
+        req,
+        aws_config
     }
 
-    req.mongo_client.collection('recordings').find(query).toArray((error, transcriptions) => {
-        if (error) {
-            // TODO error handling
-            console.log(error)
-            return next(err);
-        }
+    Chains(state)
+        .then(upload_recording.validateRecordingObject)
+        .then(upload_recording.createRecordingObject)
+        .then(upload_recording.insertRecordingInDb)
+        .then(upload_recording.reportUploadToSlack)
+        .then((state, next) => {
+            res.send(state.upload_response);
+        })
+        .catch((error, state) => {
+            next(error);
+        });
+});
 
-        let response = {
-            status: 0,
-            data: {
-                transcription_id,
-                files: transcriptions.map(t => t.file_name)
-            }
-        }
 
-        return res.send(response);
-    });
+
+router.get('/recordings/next', (req, res, next) => {
+    // TODO figure out a good way of fetching the next recording to fetch
+    // It should be based on two things:
+    // 1. How many ratings does it have
+    // 2. How extreme are the ratings (both positive and negative)
+    // Figure out the ratios and stuff
+    // We'll be using the field "rating_amount" for recordings to sort by.
+    // We need to add an index for it in mongo, as well as a script for doing it on new deployments.
+    //
+    // Also, at a later point we might want to be able to choose from
+    // transcription_sets & location
+
+    let state = {
+        req
+    }
+
+    Chains(state)
+        // TODO needs a validation function
+        .then(get_next_recording.getWithFewestRatings)
+        .then(get_next_recording.getRatingExtremes)
+        .then(get_next_recording.fetchFileFromS3)
+        .then(get_next_recording.getTranscriptionText)
+        .then((state, next) => {
+            res.send(state.next_recording)
+        })
+        .catch((error, state) => {
+            next(error);
+        });
+});
+
+/* Get recordings based on transcription_id from db */
+router.get('/recordings/transcription/:transcription_id', (req, res, next) => {
+    let state = {
+        req
+    }
+
+    Chains(state)
+        .then(get_recordings_by_transcription.validateId)
+        .then(get_recordings_by_transcription.fetchRecordings)
+        .then((state, next) => {
+            res.send(state.recordings_response)
+        })
+        .catch((error, state) => {
+            next(error);
+        });
+});
+
+/* GET file names for all recordings */
+router.get('/recordings', (req, res, next) => {
+    let state = {
+        req,
+        mongo_client: req.mongo_client
+    }
+
+    Chains(state)
+        .then(get_all_recordings.getAllTranscriptions)
+        .then(get_all_recordings.getAllRecordings)
+        .then(get_all_recordings.mapRecordings)
+        .then((state, next) => {
+            res.send(state.recordings_response)
+        })
+        .catch((error, state) => {
+            next(error);
+        });
+});
+
+/* Edit recording */
+router.put('/recording/:file_name/edit', upload.single('file'), (req, res, next) => {
+    let state = {
+        req,
+        aws_config,
+        mongo_client: req.mongo_client
+    }
+
+    Chains(state)
+        .then(edit_recordings.verifyEdit)
+        .then(edit_recordings.uploadFileToS3)
+        .then(edit_recordings.updateFileInDB)
+        .then((state, next) => {
+            res.send(state.recordings_response)
+        })
+        .catch((error, state) => {
+            next(error);
+        });
 });
 
 /* Delete recording from db */
 router.delete('/recording/:file_name', (req, res, next) => {
-    let file_name = req.params.file_name;
-
-    if (!file_name|| !ObjectId.isValid(file_name)) {
-        res.status(422)
-        let error_obj = {
-            reason: "Request was missing data",
-            data: {
-                file_name: !!file_name
-            }
-        }
-
-        return res.send(error_obj);
+    let state = {
+        req,
+        aws_config,
+        mongo_client: req.mongo_client
     }
 
-    let s3_opts = {
-        Bucket: aws_config.Bucket,
-        Key: file_name
-    }
-
-    req.S3.deleteObject(s3_opts, (err, data) => {
-        if (err) {
-            console.log(err); // TODO same as other places - do proper error handling in the app.js file
-            return next(err);
-        }
-
-        const query = {
-            filter: {
-                file_name: new ObjectId(file_name)
-            },
-            update: {
-                $set: {
-                    deleted: true
-                }
-            }
-        }
-        req.mongo_client.collection('recordings').updateOne(query.filter, query.update, (err, result) => {
-            if (err) {
-                console.log(err);
-                return next(err);
-            }
-
-            const response = {
-                status: 0,
-                message: "succesfully deleted file"
-            }
-
-            return res.send(response);
+    Chains(state)
+        .then(delete_recording.verifyDeleteRecording)
+        .then(delete_recording.removeFromS3)
+        .then(delete_recording.removeFromDb)
+        .then((state, next) => {
+            res.send(state.delete_response)
+        })
+        .catch((error, state) => {
+            next(error);
         });
-    })
 });
 
 /* Set a rating for a recording*/
-router.put('/recording/:file_name/rate/:rating', (req, res, next) => {
-    let rating = req.params.rating;
-    let file_name = req.params.file_name;
-
-    if (!rating || !ObjectId.isValid(file_name)) {
-        res.status(422)
-        let error_obj = {
-            reason: "Request was missing data, or the data was invalid",
-            data: {
-                file_name: file_name,
-                rating: rating
-            }
-        }
-
-        return res.send(error_obj);
+router.put('/recording/rate/', (req, res, next) => {
+    let state = {
+        req,
+        aws_config,
+        mongo_client: req.mongo_client
     }
 
-    const query = {
-        filter: {
-            file_name: new ObjectId(file_name)
-        },
-        update: {
-            $set: {
-                rating
-            }
-        }
-    }
-
-    req.mongo_client.collection('recordings').updateOne(query.filter, query.update, (err, result) => {
-        if (err) {
-            console.log(err);
-            return next(err);
-        }
-
-        const response = {
-            status: 0,
-            message: "succesfully rated file"
-        }
-
-        return res.send(response);
-    });
+    Chains(state)
+        .then(rate_recording.verifyRateRecording)
+        .then(rate_recording.addRatingToDb)
+        .then((state, next) => {
+            res.send(state.rate_response)
+        })
+        .catch((error, state) => {
+            next(error);
+        });
 });
+
+/* Verify recording*/
+router.put('/recording/:file_name/verify', (req, res, next) => {
+    let state = {
+        req
+    }
+
+    Chains(state)
+        .then(verify_recording.verifyVerificationRequest)
+        .then(verify_recording.postVerification)
+        .then((state, next) => {
+            res.send(state.verify_response);
+        })
+        .catch((error, state) => {
+            next(error);
+        });
+});
+
+
 
 /*  */
 

@@ -1,5 +1,5 @@
+# **THERE ARE BREAKING CHANGES IN THIS BRANCH, DO NOT MERGE INTO MASTER**
 # multivocal-backend
-
 
 ### Description
 This is the backend & rest API for the multivocal project.
@@ -18,6 +18,43 @@ There are a few requirements for a system to run the API.
     * Daemon used to run node - requires node to be install. Install by
     running ```npm install -g nodemon```.
 
+### Setup
+There are a few step to follow when setting up the project
+- AWS credentials should be stored in configs/aws_credentials.json in the following format:
+```
+{
+    "accessKeyId": "accesskey",
+    "secretAccessKey": "secretkey",
+    "region": "awsregion",
+    "Bucket": "bucketnam"
+}
+```
+
+- Mongo configuration should be stored in configs/db.js in the following format:
+```
+module.exports = {
+    mongo: {
+        port: 'mongoport',
+        db: 'dbname'
+    }
+}
+```
+- The script `populate_transcriptions_to_db.js` should be run, after it has been
+edited so that it has the data variable set to the correct json file containing
+all trascriptions in the following format:
+```
+[
+    {
+        "transcription_text": "Author of the danger trail, Philip Steels, etc.",
+         "transcription_id": "arctic_a0001"
+    },
+    {
+        "transcription_text": "Not at this particular case, Tom, apologized Whittemore.",
+         "transcription_id": "arctic_a0002"
+    }
+    ...
+]
+```
 
 ### Configuration
 The server is configured by default to run on either port 80 or 3000.
@@ -40,7 +77,7 @@ of the project.
 
 These Are the API endpoints that are a part of the backend so far.
 
-#### POST /recording
+#### POST /api/recording
 Used for uploading new files and supplying data about the recording.
 It takes the following form data:
 
@@ -54,15 +91,26 @@ but will be at a later time.
 
 It will return a status code of 422 if missing data, and 200 on succesful upload.
 
-#### GET /recordings/:transcription_id
+#### PUT /api/recording/:file_name/edit
+Replaces the current file with an edited version.
+
+It takes a file, just like in the endpoint for uploading, as form data
+
+#### DELETE /api/recording/:file_name
+Deletes the recording with the specified name from the system
+
+#### GET /api/recordings/:transcription_id
 Gets all recordings for the specified transcription_id.
 
 The transcription_id in the url is the id to get recordings for.
 
-#### DELETE /recording/:file_name
-Deletes the recording with the specified name from the system
+#### GET /api/recordings
+Returns a JSON array with all transcriptions and their corresponding recordings.
 
-#### PUT /recording/:file_name/rate/:rating
+#### PUT /api/recordings/:file_name/verify
+Marks the recording as verified
+
+#### PUT /api/recording/:file_name/rate/:rating
 Adds a rating for the specified file_name
 
 As of now, there are no spec for the ratings, that will have to decided.

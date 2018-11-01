@@ -1,0 +1,24 @@
+$font-size-base: 14px;
+$monospace-stack: 'Roboto Mono', 'Lucida Console', monospace;
+$primary-font-color: #191919;
+
+$purple: #7022fd;
+$turquiose: #00ffc8;
+
+$primary-color: #fff;
+$secondary-color: $purple;
+$tertiary-color: #6CF9D1;
+
+$layout-width: 950px;
+
+$breakpoint: 890px;
+
+@mixin strikethrough($strike-color) {
+    content: "";
+    width: calc(100% + 20px);
+    position: absolute;
+    top: 50%;
+    left: -10px;
+    border: 1px solid $strike-color;
+    cursor: pointer;
+}
