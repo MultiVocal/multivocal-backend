@@ -1,4 +1,3 @@
-# **THERE ARE BREAKING CHANGES IN THIS BRANCH, DO NOT MERGE INTO MASTER**
 # multivocal-backend
 
 ### Description
