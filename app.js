@@ -15,7 +15,10 @@ var recording = require('./routes/api/recording');
 var transcriptions = require('./routes/api/transcriptions');
 var error_reporter = require('./error_reporter')
 
+
 var app = express();
+
+var logging_format = (process.env.NODE_ENV === 'development') ? 'dev' : 'combined';
 
 app.use(express.static(__dirname + '/public'));
 app.use(ejsLayouts);
@@ -26,7 +29,7 @@ app.set('view engine', 'ejs');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-app.use(logger('dev'));
+app.use(logger(logging_format));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
